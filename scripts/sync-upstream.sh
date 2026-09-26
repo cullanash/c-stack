@@ -18,22 +18,40 @@ trap cleanup EXIT
 
 if [ $# -ge 1 ]; then
 	src="$(cd "$1" && pwd)"
+	teamkit_src="$(cd "$1/../cursor-team-kit" 2>/dev/null && pwd || true)"
 	commit="local"
 else
 	tmp="$(mktemp -d)"
 	git clone --quiet --depth 1 --branch "$ref" https://github.com/cursor/plugins.git "$tmp/plugins"
 	src="$tmp/plugins/pstack"
+	teamkit_src="$tmp/plugins/cursor-team-kit"
 	commit="$(git -C "$tmp/plugins" rev-parse HEAD)"
 fi
 
 [ -d "$src/skills" ] || { echo "error: $src/skills not found" >&2; exit 1; }
 version="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' "$src/.cursor-plugin/plugin.json" 2>/dev/null || true)"
+teamkit_version=""
+[ -n "$teamkit_src" ] && [ -f "$teamkit_src/.cursor-plugin/plugin.json" ] &&
+	teamkit_version="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' "$teamkit_src/.cursor-plugin/plugin.json")"
 
 # 1. Fresh copy of upstream skills and agents.
 rm -rf "$root/skills" "$root/agents"
 cp -R "$src/skills" "$root/skills"
 mkdir -p "$root/agents"
 cp "$src/agents/comment-sicko.md" "$root/agents/comment-sicko.md"
+
+# 1a. Vendor control-cli and control-ui from cursor-team-kit (same repo, same
+# commit as pstack above). Both are tool-agnostic (tmux, a PTY script,
+# Playwright, Node/Bun inspector) and need no Cursor-specific rewrites.
+# pstack's own playbooks (bug-fix, perf-issue, runtime-forensics, visual-parity,
+# prototype, multi-phase-plan, orchestrate) call these "the control skill" by
+# name, so shipping them here makes that upstream text work as written.
+if [ -n "$teamkit_src" ] && [ -d "$teamkit_src/skills/control-cli" ]; then
+	cp -R "$teamkit_src/skills/control-cli" "$root/skills/control-cli"
+	cp -R "$teamkit_src/skills/control-ui" "$root/skills/control-ui"
+else
+	echo "warn: cursor-team-kit not found next to pstack; control-cli/control-ui not updated" >&2
+fi
 
 # 2. Drop upstream parts that cstack replaces.
 rm -rf "$root/skills/setup-pstack"
@@ -84,16 +102,19 @@ done
 cp -R "$root/overrides/skills/." "$root/skills/"
 cp -R "$root/overrides/agents/." "$root/agents/"
 
-# 7. Record the upstream source.
+# 7. Record the upstream sources. Same repo, same commit for both.
 cat > "$root/UPSTREAM" <<EOF
 source: https://github.com/cursor/plugins/tree/main/pstack
 ref: $ref
 commit: $commit
 pstack_version: ${version:-unknown}
+teamkit_source: https://github.com/cursor/plugins/tree/main/cursor-team-kit
+teamkit_version: ${teamkit_version:-unknown}
+teamkit_skills_vendored: control-cli, control-ui
 synced: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 EOF
 
 # 8. Report Cursor references left for AGENTS.md to translate.
-left="$(grep -rniE 'cursor|\bTask\b.*(call|tool)|environment: "cloud"|cursor-team-kit|control-(ui|cli)' "$root/skills" "$root/agents" | wc -l | tr -d ' ')"
+left="$(grep -rniE 'cursor|\bTask\b.*(call|tool)|environment: "cloud"|cursor-team-kit' "$root/skills" "$root/agents" | wc -l | tr -d ' ')"
 echo "cstack synced from pstack ${version:-?} ($commit)."
 echo "Cursor references left for the AGENTS.md adapter: $left"

@@ -1,7 +1,7 @@
 # cstack
 
 cstack is [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan (poteto), packaged as a Claude Code plugin.
-The skills are upstream pstack skills.
+The skills are upstream pstack skills, plus two skills vendored from [cursor-team-kit](https://github.com/cursor/plugins/tree/main/cursor-team-kit) by Eric Zakariasson.
 `AGENTS.md` is the adapter. It maps Cursor tools, paths, and models to Claude Code.
 
 ## What you get
@@ -9,17 +9,18 @@ The skills are upstream pstack skills.
 - `/poteto-mode` with 23 playbooks. Claude enters it by itself for non-trivial engineering work.
 - All pstack skills: `/how`, `/why`, `/interrogate`, `/arena`, `/swarm`, `/tdd`, `/create-verification-skill`, and others.
 - 23 principle skills.
+- `control-cli` and `control-ui`, the "verify on the real app" skills pstack's own playbooks call for. `control-cli` drives a CLI or TUI with `tmux` or a PTY script. `control-ui` drives a browser, Electron, or IDE with a Playwright script.
 - Two subagents: `cstack:poteto-agent` and `cstack:comment-sicko`.
 - `/setup-cstack` to set the Claude model for each role.
 - A SessionStart hook that loads `AGENTS.md` and your model file into every session.
 
 ## Install
 
-1. This repo is already set up: `cullanash/c-stack`.
+1. Put this folder in a GitHub repo, for example `<owner>/cstack`.
 2. In Claude Code, add the marketplace:
 
    ```
-   /plugin marketplace add cullanash/c-stack
+   /plugin marketplace add <owner>/cstack
    ```
 
 3. Install the plugin:
@@ -51,11 +52,12 @@ scripts/sync-upstream.sh
 The script does these steps:
 
 1. Clones `cursor/plugins` and copies `pstack/skills` and `pstack/agents`.
-2. Applies path, tool, and model rewrites from `scripts/rewrite.sed`.
-3. Sets each skill `name` to its folder name (Claude Code needs kebab-case).
-4. Lets Claude auto-invoke `poteto-mode`. Other skills stay user-invoked.
-5. Copies `overrides/` on top.
-6. Writes the upstream commit to `UPSTREAM`.
+2. Copies `control-cli` and `control-ui` from `cursor-team-kit` in the same clone.
+3. Applies path, tool, and model rewrites from `scripts/rewrite.sed`.
+4. Sets each skill `name` to its folder name (Claude Code needs kebab-case).
+5. Lets Claude auto-invoke `poteto-mode`. Other skills stay user-invoked.
+6. Copies `overrides/` on top.
+7. Writes both upstream commits to `UPSTREAM`.
 
 Then bump `version` in `.claude-plugin/plugin.json` and push.
 
@@ -88,9 +90,10 @@ Panels can also call `codex` or `gemini` through their CLIs. See `AGENTS.md`.
 ## Limits
 
 - The `benny` Slack automation is not included.
-- `control-ui` and `control-cli` from `cursor-team-kit` are replaced by Playwright MCP and Bash.
+- The other `cursor-team-kit` skills (`deslop`, CI helpers, PR review) are not vendored, only `control-cli` and `control-ui`.
 - Some upstream text still says "Cursor". `AGENTS.md` tells Claude how to read it.
 
 ## License
 
 pstack is MIT licensed by Lauren Tan. See `LICENSE.pstack`.
+`control-cli` and `control-ui` are MIT licensed as part of cursor-team-kit. See `LICENSE.cursor-team-kit`.

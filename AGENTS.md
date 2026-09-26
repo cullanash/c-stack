@@ -100,20 +100,44 @@ Tell it to run the review through that vendor's CLI with Bash.
 Example: `codex exec "<prompt>"`.
 If the CLI is not installed, skip the entry and say so in the report.
 
+## The control skill
+
+pstack's own playbooks say "verify on the matching surface via the control skill"
+(bug-fix, perf-issue, runtime-forensics, visual-parity, prototype,
+multi-phase-plan, orchestrate). cstack ships both halves of that, vendored
+from `cursor-team-kit` (same repo as pstack, MIT, see `LICENSE.cursor-team-kit`):
+
+| Surface | Skill |
+|---|---|
+| Browser, web app, Electron, IDE | `control-ui` |
+| CLI, TUI, terminal program | `control-cli` |
+
+Both are already Claude Code compatible: no Cursor tool names, no Cursor
+paths. Read the matching skill with `Read` when a playbook calls for it, the
+same way you load a `principle-*` skill. They run on tools you already have:
+
+- `control-cli` builds a `tmux` session or a short Python/Node PTY script with
+  Bash. Use this for anything interactive (a menu, a prompt, a wizard, a REPL).
+- `control-ui` runs a short Playwright script with Bash (`node script.mjs`),
+  or connects over CDP for Electron. This is a plain script, separate from
+  any Playwright MCP tool this session may also have; use whichever is
+  available, and the MCP tool first if both are.
+
+Both skills already say: reuse the repo's own test/demo harness first, keep
+the harness temporary unless asked to keep it, and clean up sessions,
+processes, and temp files when done.
+
 ## Skills that pstack references but does not ship
 
 | Reference | Claude Code substitute |
 |---|---|
-| `control-ui` (browser, web UI) | Playwright MCP, or Claude in Chrome if connected. |
-| `control-cli` (CLI, TUI) | Bash. Use `tmux` for interactive programs. |
 | `deslop` | Use the `unslop` skill. |
-| `cursor-team-kit` | Not needed. Use the substitutes above. |
 
 ## Not supported
 
 - The `benny` Slack automation pack. Use the Claude Code GitHub Action or Claude in Slack.
 - Mixing non-Claude models inside one `Agent` call. Use the CLI method above.
-- Cursor Design Mode. Use screenshots with the control substitute above.
+- Cursor Design Mode. Use `control-ui` screenshots instead.
 
 ## Rules for this adapter
 

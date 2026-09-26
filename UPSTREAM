@@ -2,4 +2,7 @@ source: https://github.com/cursor/plugins/tree/main/pstack
 ref: main
 commit: local
 pstack_version: 0.15.5
-synced: 2026-09-26T20:43:56Z
+teamkit_source: https://github.com/cursor/plugins/tree/main/cursor-team-kit
+teamkit_version: 1.2.0
+teamkit_skills_vendored: control-cli, control-ui
+synced: 2026-09-26T21:40:11Z
