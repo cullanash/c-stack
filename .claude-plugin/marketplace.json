@@ -1,0 +1,15 @@
+{
+  "name": "cstack",
+  "description": "cstack: pstack adapted for Claude Code.",
+  "owner": {
+    "name": "Cullan",
+    "email": "cullan@phramelabs.com"
+  },
+  "plugins": [
+    {
+      "name": "cstack",
+      "source": "./",
+      "description": "pstack for Claude Code."
+    }
+  ]
+}

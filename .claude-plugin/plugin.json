@@ -1,0 +1,10 @@
+{
+  "name": "cstack",
+  "displayName": "cstack",
+  "version": "0.1.0",
+  "description": "pstack for Claude Code. Rigorous agent workflows (poteto-mode, playbooks, principles) with a Claude-native adapter.",
+  "author": { "name": "Cullan", "email": "cullan@phramelabs.com" },
+  "homepage": "https://github.com/cursor/plugins/tree/main/pstack",
+  "license": "MIT",
+  "keywords": ["pstack", "poteto-mode", "workflow", "principles", "verification"]
+}

@@ -1,0 +1,492 @@
+<title>cstack Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F4F5F2; --surface:#FFFFFF; --ink:#15181A; --muted:#62686B; --faint:#8A9093;
+  --rule:#DADDD7; --accent:#1E6E4E; --accent-soft:#E3EEE8; --warn:#9A5B12; --warn-soft:#F6ECDD;
+  --code-bg:#ECEEEA;
+  --sans:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101312; --surface:#171B1A; --ink:#E6E8E4; --muted:#9BA29F; --faint:#737A77;
+    --rule:#2A302E; --accent:#5CC393; --accent-soft:#16291F; --warn:#E0A657; --warn-soft:#2B2213;
+    --code-bg:#1D2220; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101312; --surface:#171B1A; --ink:#E6E8E4; --muted:#9BA29F; --faint:#737A77;
+  --rule:#2A302E; --accent:#5CC393; --accent-soft:#16291F; --warn:#E0A657; --warn-soft:#2B2213;
+  --code-bg:#1D2220; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;padding-inline:20px;padding-block:0 96px;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,kbd{font-family:var(--mono);font-size:.86em;background:var(--code-bg);padding:.1em .35em;border-radius:4px}
+.shell{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,1fr);gap:56px}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-block:48px 24px;font-size:13px}
+nav.toc .label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+nav.toc a{color:var(--muted);text-decoration:none}
+nav.toc a:hover{color:var(--ink)}
+main{min-width:0;padding-block:48px 0}
+header.top{padding-bottom:40px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.05;letter-spacing:-.025em;font-weight:500;margin:14px 0 18px;text-wrap:balance}
+h2{font-size:26px;line-height:1.2;letter-spacing:-.015em;font-weight:500;margin:0 0 8px;text-wrap:balance}
+h3{font-size:17px;font-weight:600;margin:0 0 6px}
+p{margin:0 0 14px;max-width:66ch}
+.lede{font-size:19px;color:var(--muted);max-width:60ch}
+section{padding-block:56px 8px;border-bottom:1px solid var(--rule);scroll-margin-top:16px}
+section:last-of-type{border-bottom:0}
+.sec-head{display:flex;gap:16px;align-items:baseline;margin-bottom:18px}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--faint);min-width:24px}
+.sub{color:var(--muted);margin-top:4px}
+.rule-box{margin-top:28px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--rule);background:var(--surface);border-radius:10px;overflow:hidden}
+.rule-box>div{padding:18px 20px}
+.rule-box>div+div{border-left:1px solid var(--rule)}
+.rule-box .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.rule-box .v{font-size:17px}
+.prompt{position:relative;font-family:var(--mono);font-size:13.5px;line-height:1.6;background:var(--code-bg);border-radius:8px;padding:14px 84px 14px 16px;margin:10px 0 18px;white-space:pre-wrap;word-break:break-word}
+.copy{position:absolute;top:10px;right:10px;font-family:var(--mono);font-size:11px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:6px;padding:4px 9px;cursor:pointer}
+.copy:hover{border-color:var(--ink)}
+.steps{list-style:none;margin:18px 0 8px;padding:0;display:grid;gap:0;counter-reset:s}
+.steps>li{counter-increment:s;display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 12px;padding:16px 0;border-top:1px solid var(--rule)}
+.steps>li::before{content:counter(s,decimal-leading-zero);font-family:var(--mono);font-size:12px;color:var(--accent);padding-top:3px}
+.steps>li>*{grid-column:2}
+.steps>li>h3{grid-row:1}
+.steps>li p{margin-bottom:6px}
+.note{border-left:2px solid var(--warn);background:var(--warn-soft);padding:12px 16px;border-radius:0 8px 8px 0;margin:18px 0;max-width:72ch}
+.note strong{color:var(--warn)}
+.ok{border-left-color:var(--accent);background:var(--accent-soft)}
+.ok strong{color:var(--accent)}
+/* builder */
+.builder{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:22px;margin-top:20px;display:grid;gap:18px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.tabs button{font-family:var(--sans);font-size:14px;border:1px solid var(--rule);background:transparent;color:var(--muted);border-radius:999px;padding:6px 14px;cursor:pointer}
+.seg button[aria-pressed="true"],.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.field{display:grid;gap:6px}
+.field label{font-size:13px;font-weight:500}
+.field .hint{font-size:12.5px;color:var(--faint)}
+.field input,.field textarea{font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;width:100%}
+.field textarea{min-height:64px;resize:vertical}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.checkline{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+.out-label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.builder .prompt{margin:6px 0 0;background:var(--bg);border:1px solid var(--rule);min-height:64px}
+.why{font-size:13.5px;color:var(--muted);margin:0}
+/* tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:20px 0 6px}
+.panel{padding-top:8px}
+.flow{display:flex;flex-wrap:wrap;gap:0;margin:18px 0 6px;font-family:var(--mono);font-size:12px}
+.flow span{padding:6px 10px;border:1px solid var(--rule);background:var(--surface);color:var(--muted)}
+.flow span+span{border-left:0}
+.flow span:first-child{border-radius:6px 0 0 6px}
+.flow span:last-child{border-radius:0 6px 6px 0;color:var(--accent);border-color:var(--rule)}
+/* tables */
+.tw{overflow-x:auto;margin:16px 0 8px;border:1px solid var(--rule);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:500;background:var(--bg)}
+td code{white-space:nowrap}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.pill.w{background:var(--warn-soft);color:var(--warn)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}
+.col{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 20px}
+.col ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px}
+.col.good h3{color:var(--accent)} .col.bad h3{color:var(--warn)}
+dl.gloss{display:grid;grid-template-columns:150px minmax(0,1fr);gap:0;margin:16px 0 0;border-top:1px solid var(--rule)}
+dl.gloss dt,dl.gloss dd{padding:11px 0;border-bottom:1px solid var(--rule);margin:0}
+dl.gloss dt{font-family:var(--mono);font-size:13.5px}
+footer{margin-top:48px;font-size:13px;color:var(--faint)}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:0}
+  nav.toc{display:none}
+  main{padding-top:28px}
+}
+@media (max-width:560px){
+  .rule-box,.row2,.two{grid-template-columns:minmax(0,1fr)}
+  .rule-box>div+div{border-left:0;border-top:1px solid var(--rule)}
+  dl.gloss{grid-template-columns:minmax(0,1fr)}
+  dl.gloss dt{border-bottom:0;padding-bottom:0}
+  .prompt{padding-right:16px;padding-top:44px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<div class="shell">
+<nav class="toc" aria-label="Contents">
+  <div class="label">cstack guide</div>
+  <ol>
+    <li><a href="#rule">The one rule</a></li>
+    <li><a href="#setup">Set up once</a></li>
+    <li><a href="#builder">Prompt builder</a></li>
+    <li><a href="#work">Features, bugs, new builds</a></li>
+    <li><a href="#reply">Check the reply</a></li>
+    <li><a href="#steer">Steer mid-task</a></li>
+    <li><a href="#away">Leave it running</a></li>
+    <li><a href="#ship">Ship the work</a></li>
+    <li><a href="#skills">Skill reference</a></li>
+    <li><a href="#pitfalls">Pitfalls</a></li>
+    <li><a href="#gloss">Words to know</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="top">
+  <div class="eyebrow">cstack · for Claude Code · non-engineer edition</div>
+  <h1>cstack Field Guide</h1>
+  <p class="lede">You do not write code. You say what you want and how to prove it is done. cstack makes Claude work like a careful engineering team: it reproduces, designs, builds, checks, and shows you the evidence.</p>
+</header>
+
+<section id="rule">
+  <div class="sec-head"><span class="sec-num">—</span><div><h2>The one rule</h2></div></div>
+  <p>Every good cstack prompt has two parts. Give Claude a goal. Give Claude a way to check it. Claude picks the right playbook and the right skills. You do not name them.</p>
+  <div class="rule-box">
+    <div><div class="k">The goal</div><div class="v">What you want, in your own words.</div></div>
+    <div><div class="k">The check</div><div class="v">What you will see when it works.</div></div>
+  </div>
+  <div class="prompt">/poteto-mode &lt;what is wrong or what you want&gt;. done means &lt;what you will see&gt;. show me the evidence.<button class="copy" type="button">Copy</button></div>
+  <p>A check is something that can pass or fail. "Make it better" is not a check. "The page shows &lt;result&gt; after I click &lt;button&gt;" is a check.</p>
+  <div class="note ok"><strong>Default mode.</strong> cstack turns on <code>poteto-mode</code> by itself for real engineering work. Typing <code>/poteto-mode</code> at the start makes it certain. To turn it off for a session, say "no poteto-mode".</div>
+</section>
+
+<section id="setup">
+  <div class="sec-head"><span class="sec-num">01</span><div><h2>Set up once</h2><p class="sub">Do these steps one time per computer, then one time per project.</p></div></div>
+  <ol class="steps">
+    <li><h3>Install the plugin</h3><p>In Claude Code, add your cstack repo as a marketplace. Then install the plugin.</p>
+      <div class="prompt">/plugin marketplace add &lt;owner&gt;/cstack<button class="copy" type="button">Copy</button></div>
+      <div class="prompt">/plugin install cstack@cstack<button class="copy" type="button">Copy</button></div></li>
+    <li><h3>Start a new session</h3><p>The plugin loads its rules when a session starts. Close the current session. Open a new one in your project folder.</p></li>
+    <li><h3>Pick your models</h3><p>Run the setup skill. Answer its questions. The "balanced" budget is a good start.</p>
+      <div class="prompt">/setup-cstack<button class="copy" type="button">Copy</button></div></li>
+    <li><h3>Let Claude use a browser</h3><p>For a web app, Claude must click through the real app to prove a change works. Add the Playwright browser tool one time.</p>
+      <div class="prompt">claude mcp add playwright -- npx @playwright/mcp@latest<button class="copy" type="button">Copy</button></div>
+      <p>Run this in your terminal, not in the Claude chat.</p></li>
+    <li><h3>Make a verification skill for your project</h3><p>This is the most important step. It teaches Claude how to start your app, use it like a user, and capture proof. Setup offers it at the end. You can also run it yourself.</p>
+      <div class="prompt">/create-verification-skill<button class="copy" type="button">Copy</button></div>
+      <p>It writes <code>.claude/skills/verify-&lt;app&gt;/</code> in your project. It proves itself one time before it hands over. If that proof fails, do not use it. Ask Claude to fix it.</p></li>
+    <li><h3>Keep the verification skill current</h3><p>Your app changes. The skill's feature map gets old. Run this after big changes, or once a week.</p>
+      <div class="prompt">/maintain-verification-skill<button class="copy" type="button">Copy</button></div></li>
+  </ol>
+</section>
+
+<section id="builder">
+  <div class="sec-head"><span class="sec-num">02</span><div><h2>Prompt builder</h2><p class="sub">Pick the job. Fill in the blanks. Copy the prompt into Claude Code.</p></div></div>
+  <div class="builder">
+    <div class="seg" role="group" aria-label="Job type" id="jobSeg">
+      <button type="button" data-job="feature" aria-pressed="true">New feature</button>
+      <button type="button" data-job="bug" aria-pressed="false">Bug</button>
+      <button type="button" data-job="scratch" aria-pressed="false">From scratch</button>
+      <button type="button" data-job="question" aria-pressed="false">Question</button>
+      <button type="button" data-job="away" aria-pressed="false">Leave it running</button>
+    </div>
+    <div class="field">
+      <label for="fMain" id="lMain">What should the user be able to do?</label>
+      <textarea id="fMain"></textarea>
+      <span class="hint" id="hMain">Describe the behavior, not the code.</span>
+    </div>
+    <div class="row2">
+      <div class="field" id="wrapDone">
+        <label for="fDone" id="lDone">Done means</label>
+        <input id="fDone" type="text">
+        <span class="hint" id="hDone">What you will see when it works.</span>
+      </div>
+      <div class="field" id="wrapKeep">
+        <label for="fKeep" id="lKeep">Must not change (optional)</label>
+        <input id="fKeep" type="text">
+        <span class="hint" id="hKeep">Behavior that must stay the same.</span>
+      </div>
+    </div>
+    <label class="checkline"><input type="checkbox" id="fNew"> This is a new topic in the same chat</label>
+    <div>
+      <div class="out-label">Your prompt</div>
+      <div class="prompt" id="out"><span id="outText"></span><button class="copy" type="button" data-target="outText">Copy</button></div>
+    </div>
+    <p class="why" id="why"></p>
+  </div>
+</section>
+
+<section id="work">
+  <div class="sec-head"><span class="sec-num">03</span><div><h2>Features, bugs, new builds</h2><p class="sub">What to type, what Claude does, and what you check.</p></div></div>
+  <div class="tabs" role="tablist" aria-label="Workflows">
+    <button type="button" role="tab" id="t-feature" aria-controls="p-feature" aria-selected="true">Feature</button>
+    <button type="button" role="tab" id="t-bug" aria-controls="p-bug" aria-selected="false">Bug</button>
+    <button type="button" role="tab" id="t-scratch" aria-controls="p-scratch" aria-selected="false">From scratch</button>
+  </div>
+
+  <div class="panel" role="tabpanel" id="p-feature" aria-labelledby="t-feature">
+    <div class="flow"><span>understand</span><span>design</span><span>build</span><span>verify</span><span>commit</span><span>PR</span></div>
+    <h3>What you type</h3>
+    <div class="prompt">/poteto-mode add &lt;behavior&gt;. &lt;existing behavior&gt; stays the same. done means &lt;check&gt;. verify it in the app and show me the evidence.<button class="copy" type="button">Copy</button></div>
+    <h3>What Claude does (Feature playbook)</h3>
+    <ol class="steps">
+      <li><h3>Reads the code</h3><p>It runs <code>/how</code> on the part of the app you touch. It learns how it works now.</p></li>
+      <li><h3>Designs first</h3><p>It runs <code>/architect</code>. Several subagents sketch designs. Claude merges the best parts.</p></li>
+      <li><h3>Plans the work</h3><p>It writes what must happen first, what can run in parallel, and what must not overlap.</p></li>
+      <li><h3>Hands off the code</h3><p>A subagent writes the code with a clear scope and clear success criteria.</p></li>
+      <li><h3>Verifies</h3><p>It checks the real app, not the build log. "Inconclusive" is not a pass.</p></li>
+      <li><h3>Makes small commits and opens a PR</h3><p>It cleans the diff and writes a PR with a Verification section.</p></li>
+    </ol>
+    <h3>What you check</h3>
+    <p>Read the Verification section. Look for the real result: a screenshot, a page state, a saved value. If you want to see the design before it builds, add "stop and show me the design first".</p>
+  </div>
+
+  <div class="panel" role="tabpanel" id="p-bug" aria-labelledby="t-bug" hidden>
+    <div class="flow"><span>reproduce</span><span>find cause</span><span>fix</span><span>re-run repro</span><span>PR</span></div>
+    <h3>What you type</h3>
+    <div class="prompt">/poteto-mode &lt;what happens&gt; when &lt;steps to trigger it&gt;. it should &lt;expected result&gt;. repro first, then fix and verify.<button class="copy" type="button">Copy</button></div>
+    <p>"repro first" is a real rule, not politeness. Claude must make the bug happen before it changes code.</p>
+    <h3>What Claude does (Bug fix playbook)</h3>
+    <ol class="steps">
+      <li><h3>Reproduces the bug</h3><p>It drives the app itself. It asks you only if it cannot reach the problem, and it tells you why.</p></li>
+      <li><h3>Finds the root cause</h3><p>It lists possible causes. It rules them out one at a time with runtime evidence. It uses <code>/why</code> if the bug is a regression.</p></li>
+      <li><h3>Plans the smallest fix</h3><p>Only the change the evidence supports ships. Extra "might help" code does not ship.</p></li>
+      <li><h3>Proves the fix</h3><p>The original repro now passes. If there is a cheap test, the failing test lands before the fix.</p></li>
+      <li><h3>Opens a PR</h3><p>The reply shows the failing output, then the passing output.</p></li>
+    </ol>
+    <h3>What you check</h3>
+    <p>Look for two outputs: before (broken) and after (fixed). Look for a root cause in one or two sentences. If the reply says "added a check to prevent it" with no cause, say "fix root causes".</p>
+  </div>
+
+  <div class="panel" role="tabpanel" id="p-scratch" aria-labelledby="t-scratch" hidden>
+    <div class="flow"><span>prototype</span><span>you pick</span><span>plan phases</span><span>build</span><span>verify skill</span><span>features</span></div>
+    <h3>Step A. Decide what to build with a prototype</h3>
+    <div class="prompt">/poteto-mode prototype &lt;idea&gt;. build 3 variants behind one switcher so i can compare. throwaway code. i will pick one.<button class="copy" type="button">Copy</button></div>
+    <p>The Prototype playbook builds throwaway versions in a scratch folder. It shows screenshots, tradeoffs, and a recommendation. The code is not for production. It exists only to help you decide.</p>
+    <h3>Step B. Plan the real build in phases</h3>
+    <div class="prompt">/poteto-mode build &lt;chosen direction&gt;. it spans several phases. show me the phase plan and dependency order before you write code.<button class="copy" type="button">Copy</button></div>
+    <p>Large work routes to the Multi-phase plan playbook. If no playbook fits, Claude runs <code>/figure-it-out</code> to design a plan it can audit.</p>
+    <h3>Step C. Make it provable</h3>
+    <p>As soon as the app runs, run <code>/create-verification-skill</code>. From then on, each feature can be proven in the real app.</p>
+    <h3>Step D. Add features one at a time</h3>
+    <p>Use the Feature workflow for each piece. Five small PRs are better than one large PR.</p>
+    <div class="note"><strong>Settle the data first.</strong> For a new build, the data shape decides most of the code. Say "use foundational thinking. settle the data model before any UI."</div>
+  </div>
+</section>
+
+<section id="reply">
+  <div class="sec-head"><span class="sec-num">04</span><div><h2>Check the reply</h2><p class="sub">You do not review code. You review evidence.</p></div></div>
+  <div class="two">
+    <div class="col good"><h3>Trust signals</h3><ul>
+      <li>The exact commands it ran, and their output.</li>
+      <li>Screenshots or page states from the real app.</li>
+      <li>Before and after results for a bug.</li>
+      <li>A step marked <code>skip: &lt;reason&gt;</code> instead of a silent skip.</li>
+      <li>"Inconclusive" when a check could not run.</li>
+      <li>The principles it applied, each with the decision it changed.</li>
+    </ul></div>
+    <div class="col bad"><h3>Red flags</h3><ul>
+      <li>"It builds" or "tests pass" as the only proof.</li>
+      <li>A confident "done" with no output.</li>
+      <li>A fix with no root cause.</li>
+      <li>Changes to files you did not expect.</li>
+      <li>The finish condition quietly changed.</li>
+      <li>A principle named with no decision behind it.</li>
+    </ul></div>
+  </div>
+  <p style="margin-top:18px">If a reply is too technical, type <code>/bro</code>. It restates the last message in plain words. For a deeper walk-through, type <code>/teach me what this change does. convince me it fixes the cause.</code></p>
+</section>
+
+<section id="steer">
+  <div class="sec-head"><span class="sec-num">05</span><div><h2>Steer mid-task</h2><p class="sub">cstack principles are short names for full rules. One phrase redirects Claude.</p></div></div>
+  <div class="tw"><table>
+    <thead><tr><th>When you see this</th><th>Say this</th></tr></thead>
+    <tbody>
+      <tr><td>It says "done" but shows only a build log.</td><td><code>apply prove it works. show me the real result.</code></td></tr>
+      <tr><td>It added a guard that hides the error.</td><td><code>fix root causes. repro first.</code></td></tr>
+      <tr><td>It adds code on top of old code.</td><td><code>subtract before you add.</code></td></tr>
+      <tr><td>The change is much larger than the ask.</td><td><code>laziness protocol. smallest change that solves it.</code></td></tr>
+      <tr><td>It is about to write logic before the data is clear.</td><td><code>foundational thinking. settle the data shape first.</code></td></tr>
+      <tr><td>It chose the easy path over a good user result.</td><td><code>experience first.</code></td></tr>
+      <tr><td>It picked the first design it thought of.</td><td><code>exhaust the design space. show me 2 or 3 options.</code></td></tr>
+      <tr><td>It does one huge step with no checks between.</td><td><code>sequence verifiable units.</code></td></tr>
+      <tr><td>Two fixes failed for the same reason.</td><td><code>attack the premise.</code></td></tr>
+      <tr><td>It asks you small questions it could answer itself.</td><td><code>never block on the human. decide and tell me.</code></td></tr>
+      <tr><td>It started fixing when you only asked a question.</td><td><code>i asked a question. don't change code yet.</code></td></tr>
+      <tr><td>You change topic in the same chat.</td><td><code>new task. &lt;goal&gt;.</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="away">
+  <div class="sec-head"><span class="sec-num">06</span><div><h2>Leave it running</h2><p class="sub">An agent that proves its own work can work while you are away.</p></div></div>
+  <p>A safe handoff has four parts: the goal, a finish condition, permissions, and an exit.</p>
+  <div class="prompt">/poteto-mode i'm stepping away. &lt;goal&gt; in a fresh worktree.
+done means &lt;check that can pass or fail&gt;.
+keep a decision log. don't ask me before committing.
+/loop until done. if you are stuck after a few hours, stop and write up why.<button class="copy" type="button">Copy</button></div>
+  <div class="tw"><table>
+    <thead><tr><th>Line</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>i'm stepping away</code></td><td>Claude stops asking and keeps going.</td></tr>
+      <tr><td><code>fresh worktree</code></td><td>The run gets its own copy of the code. It cannot collide with your other work.</td></tr>
+      <tr><td><code>done means …</code></td><td>Each loop checks this. The loop stops only when it passes.</td></tr>
+      <tr><td><code>decision log</code></td><td><code>/show-me-your-work</code> records each decision, reason, and evidence in a file.</td></tr>
+      <tr><td><code>don't ask me before committing</code></td><td>Gives permission in advance, so the run does not stop and wait.</td></tr>
+      <tr><td><code>/loop until done</code></td><td>Claude Code's loop command re-checks the finish condition.</td></tr>
+      <tr><td><code>stop and write up why</code></td><td>An exit for a real dead end.</td></tr>
+    </tbody>
+  </table></div>
+  <p>When you return, ask for the audit. Read its Attention section first.</p>
+  <div class="prompt">/show-me-your-work catch me up on what you did.<button class="copy" type="button">Copy</button></div>
+  <div class="note"><strong>A duration is not a finish condition.</strong> "Work on this for 4 hours" gives Claude nothing to check. You get 4 hours of activity, not a result.</div>
+</section>
+
+<section id="ship">
+  <div class="sec-head"><span class="sec-num">07</span><div><h2>Ship the work</h2><p class="sub">Three separate steps. Each is its own decision.</p></div></div>
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>Say</th><th>What happens</th><th>Merges?</th></tr></thead>
+    <tbody>
+      <tr><td>Open the PR</td><td><code>/poteto-mode open the pr. small ordered commits, evidence in the description.</code></td><td>Cleans the diff. Writes a PR with Why, Scope, and Verification.</td><td><span class="pill">No</span></td></tr>
+      <tr><td>Get it green</td><td><code>/poteto-mode babysit this pr. get it green.</code></td><td>Fixes conflicts, review comments, and failed checks. Stops at merge-ready.</td><td><span class="pill">No</span></td></tr>
+      <tr><td>Land it</td><td><code>/poteto-mode land the stack.</code></td><td>A fresh agent verifies each PR. Then it merges the verified PRs in order.</td><td><span class="pill w">Yes</span></td></tr>
+    </tbody>
+  </table></div>
+  <p>Only say "land" when you are ready for the change to go live. For a status check without action, say <code>/poteto-mode check on pr &lt;number&gt;. anything outstanding?</code></p>
+  <div class="note"><strong>Protect real data.</strong> Do not put real personal or health data in prompts, test data, or screenshots. Tell Claude to use synthetic test data for all verification.</div>
+</section>
+
+<section id="skills">
+  <div class="sec-head"><span class="sec-num">08</span><div><h2>Skill reference</h2><p class="sub"><code>poteto-mode</code> runs most of these for you. Use one directly only when you want it now.</p></div></div>
+  <div class="tw"><table>
+    <thead><tr><th>Skill</th><th>Use it when</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>/poteto-mode</code></td><td>Any real engineering task. The front door.</td><td><code>/poteto-mode &lt;goal&gt;. done means &lt;check&gt;.</code></td></tr>
+      <tr><td><code>/how</code></td><td>You want to know how a part of the app works now.</td><td><code>/how does &lt;feature&gt; work?</code></td></tr>
+      <tr><td><code>/why</code></td><td>You want to know why something was built this way.</td><td><code>/why is &lt;behavior&gt; like this?</code></td></tr>
+      <tr><td><code>/teach</code></td><td>You want to understand it, not only read a summary.</td><td><code>/teach me how &lt;change&gt; works.</code></td></tr>
+      <tr><td><code>/recall</code></td><td>You return to a topic after some days.</td><td><code>/recall catch me up on &lt;topic&gt;.</code></td></tr>
+      <tr><td><code>/bro</code></td><td>The last reply was too technical.</td><td><code>/bro</code></td></tr>
+      <tr><td><code>/architect</code></td><td>You want the design settled before code.</td><td><code>/architect &lt;change&gt;. stop and show me before implementing.</code></td></tr>
+      <tr><td><code>/arena</code></td><td>You want several attempts at one decision, then the best parts merged.</td><td><code>/arena &lt;decision&gt;. 3 candidates.</code></td></tr>
+      <tr><td><code>/swarm</code></td><td>You want many parallel checks, one report.</td><td><code>/swarm check each &lt;area&gt;. one worker each. one report.</code></td></tr>
+      <tr><td><code>/interrogate</code></td><td>You want other models to try to break a change.</td><td><code>/interrogate this branch. no nitpicks.</code></td></tr>
+      <tr><td><code>/blast-radius</code></td><td>A small change could break something else.</td><td><code>/blast-radius this diff.</code></td></tr>
+      <tr><td><code>/tdd</code></td><td>A bug has a cheap test. Write the failing test first.</td><td><code>/tdd implement</code></td></tr>
+      <tr><td><code>/figure-it-out</code></td><td>No playbook fits the task.</td><td><code>/figure-it-out &lt;task&gt;.</code></td></tr>
+      <tr><td><code>/show-me-your-work</code></td><td>You want a decision log to review later.</td><td><code>/show-me-your-work keep a log i can review.</code></td></tr>
+      <tr><td><code>/unslop</code></td><td>Text reads like AI wrote it.</td><td><code>/unslop the readme changes.</code></td></tr>
+      <tr><td><code>/no-comments</code></td><td>Clean code comments before review.</td><td><code>/no-comments the diff.</code></td></tr>
+      <tr><td><code>/reflect</code></td><td>A long task finished. Save the lessons into the skills.</td><td><code>/reflect that took too long. capture what we learned.</code></td></tr>
+      <tr><td><code>/automate-me</code></td><td>You want your own mode, built from how you work.</td><td><code>/automate-me</code></td></tr>
+      <tr><td><code>/setup-cstack</code></td><td>You want to change which model does which job.</td><td><code>/setup-cstack</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="pitfalls">
+  <div class="sec-head"><span class="sec-num">09</span><div><h2>Pitfalls</h2></div></div>
+  <div class="tw"><table>
+    <thead><tr><th>Do not</th><th>Do this</th></tr></thead>
+    <tbody>
+      <tr><td>List skills in order ("use /how, then /architect…").</td><td>State the goal and the check. The playbook orders the skills.</td></tr>
+      <tr><td>Give a vague goal ("make it better").</td><td>Give a check that can pass or fail.</td></tr>
+      <tr><td>Accept "it compiles" as done.</td><td>Ask for the real result in the app.</td></tr>
+      <tr><td>Run two agents on the same code at once.</td><td>Say "own worktree per task".</td></tr>
+      <tr><td>Accept every review comment.</td><td>Read the Act on and Dismissed lists from <code>/interrogate</code>. Override when you disagree.</td></tr>
+      <tr><td>Keep one chat for many topics.</td><td>Start with "new task", or open a new session.</td></tr>
+      <tr><td>Skip the verification skill.</td><td>Make it first. Without it, Claude cannot prove UI changes.</td></tr>
+      <tr><td>Edit files in the cstack <code>skills/</code> folder.</td><td>Put changes in <code>overrides/</code>. The sync script replaces <code>skills/</code>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="gloss">
+  <div class="sec-head"><span class="sec-num">10</span><div><h2>Words to know</h2></div></div>
+  <dl class="gloss">
+    <dt>repro</dt><dd>Making a bug happen on purpose, so you can prove it is fixed later.</dd>
+    <dt>diff</dt><dd>The list of lines that a change adds and removes.</dd>
+    <dt>commit</dt><dd>A saved checkpoint of changes, with a message.</dd>
+    <dt>branch</dt><dd>A separate line of work. It does not affect the main code until it merges.</dd>
+    <dt>worktree</dt><dd>A second folder with its own copy of a branch. Agents use one each so they do not collide.</dd>
+    <dt>PR</dt><dd>Pull request. A proposal to merge a branch into the main code, with a description.</dd>
+    <dt>stack</dt><dd>A chain of small PRs. Each one builds on the one below it.</dd>
+    <dt>CI</dt><dd>Automatic checks that run on each PR.</dd>
+    <dt>merge</dt><dd>Adding the PR's changes to the main code. Usually this makes them go live.</dd>
+    <dt>subagent</dt><dd>A helper Claude that does one part of the work and reports back.</dd>
+    <dt>playbook</dt><dd>A fixed list of steps for one kind of task, such as Bug fix or Feature.</dd>
+    <dt>principle</dt><dd>A short named rule, such as "prove it works". You can say its name to steer Claude.</dd>
+    <dt>verification skill</dt><dd>Project instructions that teach Claude how to start and use your app to prove a change works.</dd>
+  </dl>
+  <footer>cstack packages pstack by Lauren Tan (poteto), MIT license, for Claude Code. Prompts use &lt;placeholders&gt;. Replace each one with your own details.</footer>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  function copyText(text, btn){
+    var done=function(){var o=btn.textContent;btn.textContent="Copied";setTimeout(function(){btn.textContent=o;},1400);};
+    try{navigator.clipboard.writeText(text).then(done,function(){selectFallback(btn);});}catch(e){selectFallback(btn);}
+  }
+  function selectFallback(btn){
+    var box=btn.parentElement;var r=document.createRange();r.selectNodeContents(box.firstChild&&box.firstChild.nodeType===1?box.firstChild:box);
+    var s=window.getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Press ⌘C";setTimeout(function(){btn.textContent="Copy";},1800);
+  }
+  document.addEventListener("click",function(e){
+    var btn=e.target.closest(".copy");if(!btn)return;
+    var text;
+    if(btn.dataset.target){text=document.getElementById(btn.dataset.target).textContent;}
+    else{var c=btn.parentElement.cloneNode(true);c.querySelector(".copy").remove();text=c.textContent.trim();}
+    copyText(text,btn);
+  });
+
+  // tabs
+  var tabs=[].slice.call(document.querySelectorAll('[role="tab"]'));
+  function show(id){tabs.forEach(function(t){var on=t.id===id;t.setAttribute("aria-selected",on);document.getElementById(t.getAttribute("aria-controls")).hidden=!on;});
+    try{localStorage.setItem("cstack-tab",id);}catch(e){}}
+  tabs.forEach(function(t){t.addEventListener("click",function(){show(t.id);});});
+  try{var saved=localStorage.getItem("cstack-tab");if(saved&&document.getElementById(saved))show(saved);}catch(e){}
+
+  // builder
+  var jobs={
+    feature:{main:["What should the user be able to do?","Describe the behavior, not the code."],done:["Done means","What you will see when it works."],keep:["Must not change (optional)","Behavior that must stay the same."],
+      ex:{main:"<behavior the user gets>",done:"<result you can see in the app>",keep:""},
+      build:function(v){return "/poteto-mode "+v.nt+"add "+v.main+"."+(v.keep?" "+v.keep+" stays the same.":"")+" done means "+v.done+". verify it in the app and show me the evidence.";},
+      why:"Routes to the Feature playbook: read the code, design, build, verify in the app, open a PR."},
+    bug:{main:["What goes wrong, and how do you trigger it?","Say the steps, what happens, and what should happen."],done:["Fixed means","The result you expect after the same steps."],keep:["Must not change (optional)","Behavior that must stay the same."],
+      ex:{main:"<what happens> when <steps to trigger it>",done:"<expected result after the same steps>",keep:""},
+      build:function(v){return "/poteto-mode "+v.nt+v.main+". it should "+v.done+"."+(v.keep?" "+v.keep+" stays the same.":"")+" repro first, then fix and verify. show me the failing and the passing result.";},
+      why:"Routes to the Bug fix playbook: reproduce, find the root cause, smallest fix, re-run the repro."},
+    scratch:{main:["What is the idea?","One or two sentences about what you want to exist."],done:["How many variants?","Two or three is usually enough."],keep:["Decision to make (optional)","For example: layout, flow, or data shape."],
+      ex:{main:"<idea>",done:"3",keep:""},
+      build:function(v){return "/poteto-mode "+v.nt+"prototype "+v.main+". build "+v.done+" variants behind one switcher so i can compare."+(v.keep?" the decision is "+v.keep+".":"")+" throwaway code. show me screenshots, tradeoffs, and your recommendation. i will pick one.";},
+      why:"Routes to the Prototype playbook. The code is throwaway. After you pick, build it with the Feature workflow."},
+    question:{main:["What do you want to know?","Ask the question you really have."],done:["Depth (optional)","For example: explain it with diagrams."],keep:["Scope (optional)","For example: only the sign-in flow."],
+      ex:{main:"<question about the app>",done:"",keep:""},
+      build:function(v){return "/poteto-mode "+v.nt+v.main+(v.keep?" scope: "+v.keep+".":"")+(v.done?" "+v.done+".":"")+" don't change any code.";},
+      why:"Routes to the Investigation playbook. It reads and reports. It changes nothing."},
+    away:{main:["What should get done?","The whole goal."],done:["Done means","A check that can pass or fail. Not a duration."],keep:["Must not change (optional)","Behavior that must stay the same."],
+      ex:{main:"<goal>",done:"<check that can pass or fail>",keep:""},
+      build:function(v){return "/poteto-mode "+v.nt+"i'm stepping away. "+v.main+" in a fresh worktree.\ndone means "+v.done+"."+(v.keep?" "+v.keep+" stays the same.":"")+"\nkeep a decision log. don't ask me before committing.\n/loop until done. if you are stuck after a few hours, stop and write up why.";},
+      why:"Routes to the Autonomous run playbook with a decision log. Read it with /show-me-your-work when you return."}
+  };
+  var job="feature";
+  var f={main:document.getElementById("fMain"),done:document.getElementById("fDone"),keep:document.getElementById("fKeep"),nt:document.getElementById("fNew")};
+  function clean(s){return s.trim().replace(/[.\s]+$/,"");}
+  function render(){
+    var j=jobs[job];
+    var v={main:clean(f.main.value)||j.ex.main,done:clean(f.done.value)||j.ex.done,keep:clean(f.keep.value)||j.ex.keep,nt:f.nt.checked?"new task. ":""};
+    document.getElementById("outText").textContent=j.build(v);
+    document.getElementById("why").textContent=j.why;
+  }
+  function setJob(k){
+    job=k;var j=jobs[k];
+    [].forEach.call(document.querySelectorAll("#jobSeg button"),function(b){b.setAttribute("aria-pressed",b.dataset.job===k);});
+    document.getElementById("lMain").textContent=j.main[0];document.getElementById("hMain").textContent=j.main[1];
+    document.getElementById("lDone").textContent=j.done[0];document.getElementById("hDone").textContent=j.done[1];
+    document.getElementById("lKeep").textContent=j.keep[0];document.getElementById("hKeep").textContent=j.keep[1];
+    f.main.placeholder=j.ex.main;f.done.placeholder=j.ex.done;f.keep.placeholder="";
+    render();
+  }
+  document.getElementById("jobSeg").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setJob(b.dataset.job);});
+  [f.main,f.done,f.keep,f.nt].forEach(function(el){el.addEventListener("input",render);el.addEventListener("change",render);});
+  setJob("feature");
+})();
+</script>
