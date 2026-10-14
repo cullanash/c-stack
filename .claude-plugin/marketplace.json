@@ -1,6 +1,6 @@
 {
   "name": "cstack",
-  "description": "cstack: pstack adapted for Claude Code.",
+  "description": "cstack: pstack for Claude Code, Codex, and other agent apps.",
   "owner": {
     "name": "Cullan",
     "email": "cullan@phramelabs.com"

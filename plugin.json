@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "cstack",
+  "version": "0.3.0",
+  "description": "pstack for any coding agent app. Rigorous agent workflows (poteto-mode, playbooks, principles) with a small adapter per app: Claude Code, Codex, and a generic one.",
+  "author": { "name": "Cullan", "email": "cullan@phramelabs.com" },
+  "homepage": "https://github.com/cullanash/c-stack",
+  "repository": "https://github.com/cullanash/c-stack",
+  "license": "MIT",
+  "keywords": ["pstack", "poteto-mode", "workflow", "principles", "verification"],
+  "extensions": {
+    "com.openai": {
+      "hooks": "./hooks/hooks.json"
+    }
+  }
+}
