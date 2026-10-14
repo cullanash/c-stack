@@ -139,9 +139,9 @@ footer{margin-top:48px;font-size:13px;color:var(--faint)}
 
 <main>
 <header class="top">
-  <div class="eyebrow">cstack · for Claude Code · non-engineer edition</div>
+  <div class="eyebrow">cstack · for Claude Code, Codex, and other apps · non-engineer edition</div>
   <h1>cstack Field Guide</h1>
-  <p class="lede">You do not write code. You say what you want and how to prove it is done. cstack makes Claude work like a careful engineering team: it reproduces, designs, builds, checks, and shows you the evidence.</p>
+  <p class="lede">You do not write code. You say what you want and how to prove it is done. cstack makes your AI agent work like a careful engineering team: it reproduces, designs, builds, checks, and shows you the evidence.</p>
 </header>
 
 <section id="rule">
@@ -154,23 +154,32 @@ footer{margin-top:48px;font-size:13px;color:var(--faint)}
   <div class="prompt">/poteto-mode &lt;what is wrong or what you want&gt;. done means &lt;what you will see&gt;. show me the evidence.<button class="copy" type="button">Copy</button></div>
   <p>A check is something that can pass or fail. "Make it better" is not a check. "The page shows &lt;result&gt; after I click &lt;button&gt;" is a check.</p>
   <div class="note ok"><strong>Default mode.</strong> cstack turns on <code>poteto-mode</code> by itself for real engineering work. Typing <code>/poteto-mode</code> at the start makes it certain. To turn it off for a session, say "no poteto-mode".</div>
+  <div class="note"><strong>Not using Claude Code?</strong> This guide shows Claude Code. cstack also runs in Codex and in other agent apps. The prompts are the same. In Codex, type <code>$</code> where this guide types <code>/</code>, for example <code>$poteto-mode</code>.</div>
 </section>
 
 <section id="setup">
   <div class="sec-head"><span class="sec-num">01</span><div><h2>Set up once</h2><p class="sub">Do these steps one time per computer, then one time per project.</p></div></div>
   <ol class="steps">
-    <li><h3>Install the plugin</h3><p>In Claude Code, add your cstack repo as a marketplace. Then install the plugin.</p>
-      <div class="prompt">/plugin marketplace add &lt;owner&gt;/cstack<button class="copy" type="button">Copy</button></div>
-      <div class="prompt">/plugin install cstack@cstack<button class="copy" type="button">Copy</button></div></li>
-    <li><h3>Start a new session</h3><p>The plugin loads its rules when a session starts. Close the current session. Open a new one in your project folder.</p></li>
-    <li><h3>Pick your models</h3><p>Run the setup skill. Answer its questions. The "balanced" budget is a good start.</p>
-      <div class="prompt">/setup-cstack<button class="copy" type="button">Copy</button></div></li>
-    <li><h3>Let Claude use a browser</h3><p>For a web app, Claude must click through the real app to prove a change works. Add the Playwright browser tool one time.</p>
+    <li><h3>Install cstack</h3><p>Pick the app you use. You can install cstack in more than one app. They share the same skills.</p>
+      <p><strong>Claude Code.</strong> Add the cstack repo as a marketplace. Then install the plugin.</p>
+      <div class="prompt">/plugin marketplace add cullanash/c-stack<button class="copy" type="button">Copy</button></div>
+      <div class="prompt">/plugin install cstack@cstack<button class="copy" type="button">Copy</button></div>
+      <p><strong>Codex.</strong> Run this in your terminal. Then install <code>cstack</code> from <code>/plugins</code> in Codex.</p>
+      <div class="prompt">codex plugin marketplace add cullanash/c-stack<button class="copy" type="button">Copy</button></div>
+      <p><strong>Any other app</strong> (Gemini CLI, OpenCode, a local-model app). Run this in your terminal. Then paste the short block it prints into your app's <code>AGENTS.md</code>.</p>
+      <div class="prompt">git clone https://github.com/cullanash/c-stack ~/cstack &amp;&amp; ~/cstack/scripts/install.sh &lt;your app's skills folder&gt;<button class="copy" type="button">Copy</button></div></li>
+    <li><h3>Start a new session</h3><p>cstack loads its rules when a session starts. Close the current session. Open a new one in your project folder.</p>
+      <p>In Codex, also type <code>/hooks</code> one time and trust the cstack hook. Codex does not run a plugin's startup step until you trust it.</p></li>
+    <li><h3>Pick your models</h3><p>Run the setup skill. Answer its questions. The "balanced" budget is a good start. Run it once in each app you use.</p>
+      <div class="prompt">/setup-cstack<button class="copy" type="button">Copy</button></div>
+      <p>cstack gives work to three kinds of model. <strong>Strong</strong> plans, reviews, and writes. <strong>Fast</strong> writes most of the code. <strong>Small</strong> is optional and does simple bulk work. Setup asks which of your models fills each role. A small local model is fine for bulk work, but never as the one that runs the plan.</p></li>
+    <li><h3>Let the agent use a browser</h3><p>For a web app, the agent must click through the real app to prove a change works. Add the Playwright browser tool one time. Run the line for your app in your terminal, not in the chat.</p>
       <div class="prompt">claude mcp add playwright -- npx @playwright/mcp@latest<button class="copy" type="button">Copy</button></div>
-      <p>Run this in your terminal, not in the Claude chat.</p></li>
+      <div class="prompt">codex mcp add playwright -- npx @playwright/mcp@latest<button class="copy" type="button">Copy</button></div>
+      <p>If neither line fits your app, skip this. cstack's <code>control-ui</code> skill can drive a browser with a short script instead.</p></li>
     <li><h3>Make a verification skill for your project</h3><p>This is the most important step. It teaches Claude how to start your app, use it like a user, and capture proof. Setup offers it at the end. You can also run it yourself.</p>
       <div class="prompt">/create-verification-skill<button class="copy" type="button">Copy</button></div>
-      <p>It writes <code>.claude/skills/verify-&lt;app&gt;/</code> in your project. It proves itself one time before it hands over. If that proof fails, do not use it. Ask Claude to fix it.</p></li>
+      <p>It writes <code>verify-&lt;app&gt;</code> into your project's skills folder (<code>.claude/skills/</code> in Claude Code, <code>.agents/skills/</code> in Codex). It proves itself one time before it hands over. If that proof fails, do not use it. Ask Claude to fix it.</p></li>
     <li><h3>Keep the verification skill current</h3><p>Your app changes. The skill's feature map gets old. Run this after big changes, or once a week.</p>
       <div class="prompt">/maintain-verification-skill<button class="copy" type="button">Copy</button></div></li>
   </ol>
@@ -329,7 +338,7 @@ keep a decision log. don't ask me before committing.
       <tr><td><code>done means …</code></td><td>Each loop checks this. The loop stops only when it passes.</td></tr>
       <tr><td><code>decision log</code></td><td><code>/show-me-your-work</code> records each decision, reason, and evidence in a file.</td></tr>
       <tr><td><code>don't ask me before committing</code></td><td>Gives permission in advance, so the run does not stop and wait.</td></tr>
-      <tr><td><code>/loop until done</code></td><td>Claude Code's loop command re-checks the finish condition.</td></tr>
+      <tr><td><code>/loop until done</code></td><td>Claude Code's loop command re-checks the finish condition. Codex has no <code>/loop</code>. There, the agent re-runs the task with <code>codex exec</code> until the check passes.</td></tr>
       <tr><td><code>stop and write up why</code></td><td>An exit for a real dead end.</td></tr>
     </tbody>
   </table></div>
@@ -363,6 +372,9 @@ keep a decision log. don't ask me before committing.
       <tr><td><code>/teach</code></td><td>You want to understand it, not only read a summary.</td><td><code>/teach me how &lt;change&gt; works.</code></td></tr>
       <tr><td><code>/recall</code></td><td>You return to a topic after some days.</td><td><code>/recall catch me up on &lt;topic&gt;.</code></td></tr>
       <tr><td><code>/bro</code></td><td>The last reply was too technical.</td><td><code>/bro</code></td></tr>
+      <tr><td><code>/ketchup</code></td><td>You were away. You want a short catch-up with small pictures.</td><td><code>/ketchup</code></td></tr>
+      <tr><td><code>/in-your-own-words</code></td><td>You want the agent to repeat your goal back before it starts.</td><td><code>/in-your-own-words</code></td></tr>
+      <tr><td><code>/grill-me</code></td><td>You want your plan questioned until every decision is settled.</td><td><code>/grill-me &lt;plan or idea&gt;</code></td></tr>
       <tr><td><code>/architect</code></td><td>You want the design settled before code.</td><td><code>/architect &lt;change&gt;. stop and show me before implementing.</code></td></tr>
       <tr><td><code>/arena</code></td><td>You want several attempts at one decision, then the best parts merged.</td><td><code>/arena &lt;decision&gt;. 3 candidates.</code></td></tr>
       <tr><td><code>/swarm</code></td><td>You want many parallel checks, one report.</td><td><code>/swarm check each &lt;area&gt;. one worker each. one report.</code></td></tr>
@@ -373,9 +385,11 @@ keep a decision log. don't ask me before committing.
       <tr><td><code>/show-me-your-work</code></td><td>You want a decision log to review later.</td><td><code>/show-me-your-work keep a log i can review.</code></td></tr>
       <tr><td><code>/unslop</code></td><td>Text reads like AI wrote it.</td><td><code>/unslop the readme changes.</code></td></tr>
       <tr><td><code>/no-comments</code></td><td>Clean code comments before review.</td><td><code>/no-comments the diff.</code></td></tr>
+      <tr><td><code>/correct</code></td><td>The agent keeps making the same mistake. Make it impossible.</td><td><code>/correct it keeps &lt;mistake&gt;.</code></td></tr>
       <tr><td><code>/reflect</code></td><td>A long task finished. Save the lessons into the skills.</td><td><code>/reflect that took too long. capture what we learned.</code></td></tr>
       <tr><td><code>/automate-me</code></td><td>You want your own mode, built from how you work.</td><td><code>/automate-me</code></td></tr>
       <tr><td><code>/setup-cstack</code></td><td>You want to change which model does which job.</td><td><code>/setup-cstack</code></td></tr>
+      <tr><td><code>/poteto-help</code></td><td>You have a question about how to use cstack.</td><td><code>/poteto-help which skill checks my design?</code></td></tr>
     </tbody>
   </table></div>
 </section>
@@ -409,12 +423,15 @@ keep a decision log. don't ask me before committing.
     <dt>stack</dt><dd>A chain of small PRs. Each one builds on the one below it.</dd>
     <dt>CI</dt><dd>Automatic checks that run on each PR.</dd>
     <dt>merge</dt><dd>Adding the PR's changes to the main code. Usually this makes them go live.</dd>
-    <dt>subagent</dt><dd>A helper Claude that does one part of the work and reports back.</dd>
+    <dt>subagent</dt><dd>A helper agent that does one part of the work and reports back.</dd>
     <dt>playbook</dt><dd>A fixed list of steps for one kind of task, such as Bug fix or Feature.</dd>
     <dt>principle</dt><dd>A short named rule, such as "prove it works". You can say its name to steer Claude.</dd>
-    <dt>verification skill</dt><dd>Project instructions that teach Claude how to start and use your app to prove a change works.</dd>
+    <dt>verification skill</dt><dd>Project instructions that teach the agent how to start and use your app to prove a change works.</dd>
+    <dt>adapter</dt><dd>A short cstack file for one app (Claude Code, Codex, or any other). It tells the agent what pstack's Cursor words mean in that app.</dd>
+    <dt>model tier</dt><dd>The kind of model a job needs: strong, fast, or small. Setup picks a real model for each one, per app.</dd>
+    <dt>local model</dt><dd>An AI model that runs on your own computer instead of a company's servers. Small ones are cheap but lose track of long plans.</dd>
   </dl>
-  <footer>cstack packages pstack by Lauren Tan (poteto), MIT license, for Claude Code. Prompts use &lt;placeholders&gt;. Replace each one with your own details.</footer>
+  <footer>cstack packages pstack by Lauren Tan (poteto), MIT license, for Claude Code, Codex, and other agent apps. Prompts use &lt;placeholders&gt;. Replace each one with your own details.</footer>
 </section>
 </main>
 </div>
