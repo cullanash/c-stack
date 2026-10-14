@@ -9,6 +9,7 @@ The skills are upstream pstack skills, plus two skills vendored from [cursor-tea
 - `/poteto-mode` with 23 playbooks. Claude enters it by itself for non-trivial engineering work.
 - All pstack skills: `/how`, `/why`, `/interrogate`, `/arena`, `/swarm`, `/tdd`, `/create-verification-skill`, `/correct`, `/ketchup`, `/in-your-own-words`, `/poteto-help`, and others.
 - 24 principle skills.
+- `/grill-me`, Matt Pocock's interview skill. It questions you in rounds, with a recommended answer for each question, until every decision in your plan is settled. cstack owns this skill, so upstream syncs keep it.
 - pstack's own guide in `docs/guide/`, which `/poteto-help` links to.
 - `control-cli` and `control-ui`, the "verify on the real app" skills pstack's own playbooks call for. `control-cli` drives a CLI or TUI with `tmux` or a PTY script. `control-ui` drives a browser, Electron, or IDE with a Playwright script.
 - Two subagents: `cstack:poteto-agent` and `cstack:comment-sicko`.
@@ -98,3 +99,4 @@ Panels can also call `codex` or `gemini` through their CLIs. See `AGENTS.md`.
 
 pstack is MIT licensed by Lauren Tan. See `LICENSE.pstack`.
 `control-cli` and `control-ui` are MIT licensed as part of cursor-team-kit. See `LICENSE.cursor-team-kit`.
+`grill-me` is MIT licensed by Matt Pocock, from [mattpocock/skills](https://github.com/mattpocock/skills). See `LICENSE.mattpocock-skills`.
