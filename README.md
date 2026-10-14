@@ -7,11 +7,12 @@ The skills are upstream pstack skills, plus two skills vendored from [cursor-tea
 ## What you get
 
 - `/poteto-mode` with 23 playbooks. Claude enters it by itself for non-trivial engineering work.
-- All pstack skills: `/how`, `/why`, `/interrogate`, `/arena`, `/swarm`, `/tdd`, `/create-verification-skill`, and others.
-- 23 principle skills.
+- All pstack skills: `/how`, `/why`, `/interrogate`, `/arena`, `/swarm`, `/tdd`, `/create-verification-skill`, `/correct`, `/ketchup`, `/in-your-own-words`, `/poteto-help`, and others.
+- 24 principle skills.
+- pstack's own guide in `docs/guide/`, which `/poteto-help` links to.
 - `control-cli` and `control-ui`, the "verify on the real app" skills pstack's own playbooks call for. `control-cli` drives a CLI or TUI with `tmux` or a PTY script. `control-ui` drives a browser, Electron, or IDE with a Playwright script.
 - Two subagents: `cstack:poteto-agent` and `cstack:comment-sicko`.
-- `/setup-cstack` to set the Claude model for each role.
+- `/setup-cstack` to set the Claude model for each role and the default reasoning effort.
 - A SessionStart hook that loads `AGENTS.md` and your model file into every session.
 
 ## Install
@@ -82,7 +83,7 @@ To use a local pstack folder, pass its path as the first argument.
 |---|---|
 | Code delegates | `sonnet` |
 | Judgment, prose, hardest tasks | `opus` |
-| Panels (arena, architect, interrogate) | `opus, sonnet, haiku` |
+| Panels (arena, architect, interrogate) | `opus, sonnet` |
 
 Use `/setup-cstack` to change them. `fable` is supported if your plan has it.
 Panels can also call `codex` or `gemini` through their CLIs. See `AGENTS.md`.

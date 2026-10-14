@@ -29,9 +29,11 @@ Apply this file every time a cstack skill tells you to use a Cursor tool, path, 
 | `Task` tool, `Task` call | Use the `Agent` tool. |
 | `subagent_type: generalPurpose` | Use `subagent_type: "general-purpose"`. |
 | `subagent_type: "poteto-agent"` | Use `subagent_type: "cstack:poteto-agent"`. |
-| `subagent_type: "Comment Sicko"` | Use `subagent_type: "cstack:comment-sicko"`. |
+| `subagent_type: "Comment Sicko"` or `"comment-sicko"` | Use `subagent_type: "cstack:comment-sicko"`. |
 | `model: <slug>` on a `Task` | Set `model` on the `Agent` call to an alias from the model table below. |
-| `run_in_background: true` | Keep it. The `Agent` tool supports it. |
+| `run_in_background: true`, `is_background: true` | Keep it. The `Agent` tool supports it. |
+| Reasoning level, effort (`max`, `xhigh`, `high`, `medium`, `low`) | Set `effort` on the `Agent` call. See "Effort" below. |
+| Fast mode, `-fast` slug | Ignore. Claude Code subagents have no fast mode. Lower `effort` one step if speed matters. |
 | `readonly: false`, "agent mode" | Ignore. Claude Code subagents get tools from their agent definition. |
 | `environment: "cloud"` | Use `isolation: "worktree"` for workers that edit files. Omit it for read-only workers. |
 | `environment: "local"` | Omit `isolation`. |
@@ -42,6 +44,8 @@ Apply this file every time a cstack skill tells you to use a Cursor tool, path, 
 | Todo list | Use `TaskCreate` and `TaskUpdate`. If they are not available, use `TodoWrite`. |
 | Cursor `/loop` | Use Claude Code `/loop`. For unattended runs, use headless `claude -p` in a script. |
 | Cursor plan mode | Use Claude Code plan mode. |
+| Cursor Custom Mode, "Use as Mode" | Not needed. The cstack session hook loads poteto-mode as the default. See "Default workflow". |
+| `/visualize` (Cursor charts and diagrams) | Draw a Mermaid diagram, or write a small HTML or SVG file and show a screenshot of it. |
 | `/create-skill` (Cursor built-in) | Use the `skill-creator` skill if it is installed. Otherwise write `SKILL.md` by hand. |
 | Cursor built-in `/babysit` | Use the `babysit` playbook in `poteto-mode`. |
 
@@ -53,6 +57,8 @@ Apply this file every time a cstack skill tells you to use a Cursor tool, path, 
 | `.cursor/skills/` | `.claude/skills/` |
 | `~/.cursor/skills/` | `~/.claude/skills/` |
 | `~/.cursor/plugins/` | `~/.claude/plugins/` |
+| `.cursor-plugin/plugin.json` | `.claude-plugin/plugin.json` |
+| `docs/guide/` (pstack guide) | `<cstack plugin root>/docs/guide/`. Copied from upstream by the sync script. |
 | `.cursor/automations/` | Not supported. See "Not supported" below. |
 | `~/.cursor/projects/<slug>/agent-transcripts/<uuid>/<uuid>.jsonl` | `~/.claude/projects/<slug>/<uuid>.jsonl` |
 
@@ -77,7 +83,7 @@ If the file or a role line is missing, use these defaults.
 | Explorers and investigators (`how`, `why`) | `sonnet` | Bulk reading. |
 | Explainers and synthesizers | `opus` | Judgment. |
 | Swarm workers | `sonnet` | Parallel bulk work. |
-| Panels (arena, architect, interrogate) | `opus, sonnet, haiku` | One subagent per entry. Different tiers give different views. |
+| Panels (arena, architect, interrogate) | `opus, sonnet` | One subagent per entry. Two seats, like upstream. Add `haiku`, `codex`, or `gemini` for more views. |
 
 Map Cursor model slugs that you still see in a skill:
 
@@ -85,11 +91,22 @@ Map Cursor model slugs that you still see in a skill:
 |---|---|
 | `claude-opus-*` | `opus` |
 | `gpt-*-sol-*` | `opus` |
-| `grok-*` | `sonnet` |
+| `grok-*`, `cursor-grok-*`, `composer-*` | `sonnet` |
 | `inherit-parent`, `auto` | Omit `model`. The subagent uses the parent model. |
 
 `fable` is a valid alias if the user's plan includes it.
 Use `fable` only when `~/.claude/cstack-models.md` names it.
+
+### Effort
+
+pstack picks a reasoning level for each subagent. In Claude Code this is the `effort` field on the `Agent` call.
+
+- Start from the `effort` line in `~/.claude/cstack-models.md`. If it is missing, start at `xhigh`.
+- The ladder is `max` > `xhigh` > `high` > `medium` > `low`.
+- Follow poteto-mode's "Match the model to the job" rule: up one step for the hardest work, down one for judgment, down two or more for routine work.
+- Verification workers keep the starting effort.
+- A Cursor slug's effort token (for example the `xhigh` in `claude-opus-5-5-xhigh`) maps to `effort`, not to the model.
+- If the `Agent` tool rejects `effort`, omit it and say so once.
 
 ### Cross-vendor panel entries (optional)
 
