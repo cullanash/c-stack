@@ -1,6 +1,6 @@
 ---
 name: setup-cstack
-description: Configure which Claude model cstack uses per role. Writes ~/.claude/cstack-models.md, which overrides the skill defaults. Use for /setup-cstack, /setup-pstack, "configure cstack models", or changing cstack's model choices.
+description: Configure which Claude model cstack uses per role, and the default reasoning effort. Writes ~/.claude/cstack-models.md, which overrides the skill defaults. Use for /setup-cstack, /setup-pstack, "configure cstack models", or changing cstack's model choices.
 ---
 
 # Setup cstack
@@ -23,23 +23,26 @@ Write a full ID only if the user gives it.
 ### 2. Load current state
 
 If `~/.claude/cstack-models.md` exists, read it.
-Treat its `# budget` line and role lines as the current choices.
+Treat its `# budget` line, `effort` line, and role lines as the current choices.
 If it does not exist, start from the defaults in step 5.
-Drop any line whose role is not in step 5. Tell the user which lines you dropped.
+Drop any line whose role is not in step 5 (the `effort` line counts as a role). Tell the user which lines you dropped.
 
 ### 3. Ask for a budget
 
 Use `AskUserQuestion` with these options:
 
-- `max — best model per role`
-- `balanced — sonnet for code, opus for judgment` (the default)
-- `lean — haiku for bulk work, sonnet for judgment`
+- `max — best model per role, max effort`
+- `balanced — sonnet for code, opus for judgment, xhigh effort` (the default)
+- `lean — haiku for bulk work, sonnet for judgment, high effort`
 
 Apply the budget:
 
-- `max`: use `fable` where the default is `opus`, if the user has `fable`. Otherwise keep `opus`. Use `opus` for code delegates.
-- `balanced`: use the defaults in step 5.
-- `lean`: change `opus` to `sonnet`, and change `sonnet` to `haiku`, except for `hardest tasks`, which stays `opus`.
+- `max`: use `fable` where the default is `opus`, if the user has `fable`. Otherwise keep `opus`. Use `opus` for code delegates. Set `effort: max`.
+- `balanced`: use the defaults in step 5. Set `effort: xhigh`.
+- `lean`: change `opus` to `sonnet`, and change `sonnet` to `haiku`, except for `hardest tasks`, which stays `opus`. Set `effort: high`.
+
+The `effort` line is the starting reasoning effort for every subagent.
+poteto-mode raises or lowers it per job. AGENTS.md explains how.
 
 ### 4. Confirm
 
@@ -57,6 +60,7 @@ Overwrite the whole file. This keeps re-runs idempotent. Shape:
 # cstack model configuration. One line per role.
 # Delete a line to use the default. `inherit` runs the role on the parent model.
 # budget: balanced
+effort: xhigh
 feature, refactoring: sonnet
 bug-fix: sonnet
 perf-issue: sonnet
@@ -69,11 +73,11 @@ why investigators: sonnet
 why synthesizer: opus
 reflect tooling: opus
 reflect judgment, divergent, synthesizer: opus
-arena runners: opus, sonnet, haiku
-arena cross-judge pool: opus, sonnet, haiku
+arena runners: opus, sonnet
+arena cross-judge pool: opus, sonnet
 swarm workers: sonnet
-architect runners: opus, sonnet, haiku
-interrogate reviewers: opus, sonnet, haiku
+architect runners: opus, sonnet
+interrogate reviewers: opus, sonnet
 ```
 
 ### 6. Tell the user

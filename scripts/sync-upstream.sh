@@ -40,6 +40,11 @@ cp -R "$src/skills" "$root/skills"
 mkdir -p "$root/agents"
 cp "$src/agents/comment-sicko.md" "$root/agents/comment-sicko.md"
 
+# 1c. Vendor pstack's guide. /poteto-help links into docs/guide/.
+rm -rf "$root/docs/guide"
+mkdir -p "$root/docs"
+[ -d "$src/docs/guide" ] && cp -R "$src/docs/guide" "$root/docs/guide"
+
 # 1a. Vendor control-cli and control-ui from cursor-team-kit (same repo, same
 # commit as pstack above). Both are tool-agnostic (tmux, a PTY script,
 # Playwright, Node/Bun inspector) and need no Cursor-specific rewrites.
@@ -57,11 +62,11 @@ fi
 rm -rf "$root/skills/setup-pstack"
 
 # 3. Mechanical rewrites on text files.
-find "$root/skills" "$root/agents" -type f \
+find "$root/skills" "$root/agents" "$root/docs/guide" -type f \
 	\( -name '*.md' -o -name '*.sh' -o -name '*.mjs' -o -name '*.ts' -o -name '*.json' \) \
 	! -name 'bun.lock' -print0 |
 	xargs -0 sed -i.bak -E -f "$root/scripts/rewrite.sed"
-find "$root/skills" "$root/agents" -name '*.bak' -delete
+find "$root/skills" "$root/agents" "$root/docs/guide" -name '*.bak' -delete
 
 # 4. Claude Code agent names must be kebab-case.
 sed -i.bak -E '1,5s/^name: Comment Sicko$/name: comment-sicko/' "$root/agents/comment-sicko.md"
