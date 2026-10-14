@@ -1,51 +1,84 @@
 # cstack
 
-cstack is [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan (poteto), packaged as a Claude Code plugin.
+cstack is [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan (poteto), made to run in any coding agent app.
 The skills are upstream pstack skills, plus two skills vendored from [cursor-team-kit](https://github.com/cursor/plugins/tree/main/cursor-team-kit) by Eric Zakariasson.
-`AGENTS.md` is the adapter. It maps Cursor tools, paths, and models to Claude Code.
+
+One shared core, one small adapter per app:
+
+| Part | What it is |
+|---|---|
+| `skills/` | pstack's skills and playbooks, the same for every app. |
+| `AGENTS.md` | The shared core: default workflow, model tiers, effort, and rules. |
+| `adapters/claude-code.md` | Maps Cursor tools, paths, and models to Claude Code. |
+| `adapters/codex.md` | The same for Codex (CLI and desktop app). |
+| `adapters/generic.md` | The same for any other app that reads `AGENTS.md`: Gemini CLI, OpenCode, a local-model harness, and so on. |
+
+Adding an app means adding one adapter file.
 
 ## What you get
 
-- `/poteto-mode` with 23 playbooks. Claude enters it by itself for non-trivial engineering work.
-- All pstack skills: `/how`, `/why`, `/interrogate`, `/arena`, `/swarm`, `/tdd`, `/create-verification-skill`, `/correct`, `/ketchup`, `/in-your-own-words`, `/poteto-help`, and others.
+- `poteto-mode` with 23 playbooks. The agent enters it by itself for non-trivial engineering work.
+- All pstack skills: `how`, `why`, `interrogate`, `arena`, `swarm`, `tdd`, `create-verification-skill`, `correct`, `ketchup`, `in-your-own-words`, `poteto-help`, and others.
 - 24 principle skills.
-- `/grill-me`, Matt Pocock's interview skill. It questions you in rounds, with a recommended answer for each question, until every decision in your plan is settled. cstack owns this skill, so upstream syncs keep it.
-- pstack's own guide in `docs/guide/`, which `/poteto-help` links to.
-- `control-cli` and `control-ui`, the "verify on the real app" skills pstack's own playbooks call for. `control-cli` drives a CLI or TUI with `tmux` or a PTY script. `control-ui` drives a browser, Electron, or IDE with a Playwright script.
-- Two subagents: `cstack:poteto-agent` and `cstack:comment-sicko`.
-- `/setup-cstack` to set the Claude model for each role and the default reasoning effort.
-- A SessionStart hook that loads `AGENTS.md` and your model file into every session.
+- `grill-me`, Matt Pocock's interview skill. It questions you in rounds, with a recommended answer for each question, until every decision in your plan is settled. cstack owns this skill, so upstream syncs keep it.
+- pstack's own guide in `docs/guide/`, which `poteto-help` links to.
+- `control-cli` and `control-ui`, the "verify on the real app" skills pstack's playbooks call for.
+- Two subagents: `poteto-agent` and `comment-sicko`.
+- `setup-cstack` to pick models per role and the default reasoning effort, in any app.
+- A session hook that loads cstack into every Claude Code and Codex session.
 
 ## Install
 
-1. Put this folder in a GitHub repo, for example `<owner>/cstack`.
-2. In Claude Code, add the marketplace:
+### Claude Code
 
-   ```
-   /plugin marketplace add <owner>/cstack
-   ```
+```
+/plugin marketplace add cullanash/c-stack
+/plugin install cstack@cstack
+```
 
-3. Install the plugin:
-
-   ```
-   /plugin install cstack@cstack
-   ```
-
-4. Start a new session.
-5. Run `/setup-cstack` one time.
-
+Start a new session, then run `/setup-cstack` one time.
 To test without install, run `claude --plugin-dir <path-to-cstack>`.
+
+### Codex
+
+```
+codex plugin marketplace add cullanash/c-stack
+```
+
+Then install `cstack` from `/plugins`, start a new session, and trust the cstack hook in `/hooks`.
+Run `$setup-cstack` one time. It sets your Codex models, and can install the two custom agents and add a fallback line to `~/.codex/AGENTS.md`.
+
+### Any other app
+
+```
+git clone https://github.com/cullanash/c-stack ~/cstack
+~/cstack/scripts/install.sh <your app's skills folder>
+```
+
+Add the block the script prints to your app's `AGENTS.md`. Then ask the agent to run `setup-cstack`.
 
 ## Use it
 
-- Give Claude a task. Claude uses `poteto-mode` when the task needs rigor.
-- To force it, start the prompt with `/poteto-mode`.
+- Give the agent a task. It uses `poteto-mode` when the task needs rigor.
+- To force it, start the prompt with `/poteto-mode` (Claude Code) or `$poteto-mode` (Codex).
 - To stop it for a session, say "no poteto-mode".
-- Run other skills with `/<name>` or `/cstack:<name>`.
+
+## Models
+
+Skills name a tier, not a model. `setup-cstack` writes `~/.cstack/models.md`, which maps each tier to a model per app.
+
+| Tier | Used for | Claude Code default |
+|---|---|---|
+| `strong` | Judgment, prose, hardest tasks | `opus` |
+| `fast` | Code delegates, explorers, swarm workers | `sonnet` |
+| `small` | Optional bulk work, such as a local model | `haiku` |
+
+Panels (arena, architect, interrogate) default to `strong, fast`. They can also call `claude`, `codex`, or `gemini` through their command-line tools. See `AGENTS.md`.
+Small local models (about 30B and under) are fine for bulk work but should not run `poteto-mode` itself. See `AGENTS.md`.
 
 ## Update from upstream
 
-Run this from the plugin folder:
+Run this from the cstack folder:
 
 ```
 scripts/sync-upstream.sh
@@ -53,15 +86,16 @@ scripts/sync-upstream.sh
 
 The script does these steps:
 
-1. Clones `cursor/plugins` and copies `pstack/skills` and `pstack/agents`.
+1. Clones `cursor/plugins` and copies `pstack/skills`, `pstack/agents`, and `pstack/docs/guide`.
 2. Copies `control-cli` and `control-ui` from `cursor-team-kit` in the same clone.
-3. Applies path, tool, and model rewrites from `scripts/rewrite.sed`.
-4. Sets each skill `name` to its folder name (Claude Code needs kebab-case).
-5. Lets Claude auto-invoke `poteto-mode`. Other skills stay user-invoked.
+3. Applies the app-neutral rewrites in `scripts/rewrite.sed`: model file path, setup skill name, and model slugs to tiers.
+4. Sets each skill `name` to its folder name.
+5. Lets the agent auto-invoke `poteto-mode`. Other skills stay user-invoked.
 6. Copies `overrides/` on top.
-7. Writes both upstream commits to `UPSTREAM`.
+7. Writes Codex files: `agents/openai.yaml` in each skill, and custom agent templates in `adapters/codex/agents/`.
+8. Writes both upstream commits to `UPSTREAM`.
 
-Then bump `version` in `.claude-plugin/plugin.json` and push.
+Then bump `version` in `plugin.json` and `.claude-plugin/plugin.json`, and push.
 
 To pin an upstream version, set `PSTACK_REF=<git-ref>`.
 To use a local pstack folder, pass its path as the first argument.
@@ -70,30 +104,25 @@ To use a local pstack folder, pass its path as the first argument.
 
 | Path | Purpose | Edit? |
 |---|---|---|
-| `AGENTS.md` | Adapter: Cursor → Claude Code rules | Yes |
-| `overrides/` | cstack files that replace upstream files | Yes |
-| `scripts/rewrite.sed` | Mechanical rewrites | Yes |
+| `AGENTS.md` | Shared core | Yes |
+| `adapters/*.md` | One adapter per app | Yes |
+| `overrides/` | cstack-owned skills and agents, copied over upstream | Yes |
+| `scripts/rewrite.sed` | App-neutral rewrites | Yes |
 | `scripts/sync-upstream.sh` | Rebuild from upstream | Yes |
-| `scripts/session-start.sh` | Loads the adapter into each session | Yes |
-| `skills/`, `agents/` | Generated by the sync script | No. Changes are lost on the next sync. |
+| `scripts/session-start.sh` | Session hook for Claude Code and Codex | Yes |
+| `scripts/install.sh` | Links skills into another app's skills folder | Yes |
+| `scripts/install-codex-agents.sh` | Installs the Codex custom agents | Yes |
+| `plugin.json`, `.agents/plugins/` | Codex and portable plugin manifests | Yes |
+| `.claude-plugin/` | Claude Code plugin manifests | Yes |
+| `skills/`, `agents/`, `docs/guide/`, `adapters/codex/agents/` | Generated by the sync script | No. Changes are lost on the next sync. |
 | `UPSTREAM` | Upstream commit and version | No |
-
-## Default models
-
-| Role | Model |
-|---|---|
-| Code delegates | `sonnet` |
-| Judgment, prose, hardest tasks | `opus` |
-| Panels (arena, architect, interrogate) | `opus, sonnet` |
-
-Use `/setup-cstack` to change them. `fable` is supported if your plan has it.
-Panels can also call `codex` or `gemini` through their CLIs. See `AGENTS.md`.
 
 ## Limits
 
 - The `benny` Slack automation is not included.
 - The other `cursor-team-kit` skills (`deslop`, CI helpers, PR review) are not vendored, only `control-cli` and `control-ui`.
-- Some upstream text still says "Cursor". `AGENTS.md` tells Claude how to read it.
+- Upstream text still says "Cursor". Each adapter tells the agent how to read it.
+- In an app that cannot start subagents, panels and swarms run one seat at a time, so their views are not independent.
 
 ## License
 

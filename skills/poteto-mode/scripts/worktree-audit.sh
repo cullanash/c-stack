@@ -61,9 +61,12 @@ elif raw=$(gh pr list --author "@me" --state all --limit 1000 \
 fi
 [ -s "$prs" ] || echo "[]" > "$prs"
 
-# Transcripts dir (Claude Code): ~/.claude/projects/<slug>, slug = path with "/" and "." as "-".
+# Transcripts dir: $CSTACK_TRANSCRIPTS if set, else Claude Code's
+# ~/.claude/projects/<slug> (slug = path with "/" and "." as "-"),
+# else Codex's ~/.codex/sessions.
 slug=$(printf '%s' "$main_wt" | sed 's#[/.]#-#g')
-transcripts="$HOME/.claude/projects/$slug"
+transcripts="${CSTACK_TRANSCRIPTS:-$HOME/.claude/projects/$slug}"
+[ -d "$transcripts" ] || transcripts="$HOME/.codex/sessions"
 now=$(date +%s)
 
 echo "# base: $base"
