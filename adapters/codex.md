@@ -34,6 +34,7 @@ Read `AGENTS.md` first. This file maps Cursor words in the skills to Codex (CLI 
 | `/visualize` | Draw a Mermaid diagram, or write a small HTML or SVG file and show a screenshot of it. |
 | `/create-skill` | Use the built-in `$skill-creator` skill. |
 | Cursor built-in `/babysit` | Use the `babysit` playbook in `poteto-mode`. |
+| "Verify via the control skill", Cursor browser, Design Mode | Web app on localhost: the Codex app's built-in browser first, then a Playwright MCP server, then `control-ui`. Desktop app or anything only the screen shows: Computer Use (`@Computer` or `@<AppName>`) if it is enabled, else `control-ui`. Terminal programs: `control-cli` (Computer Use cannot drive terminals). |
 
 ## Paths
 

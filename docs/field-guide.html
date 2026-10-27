@@ -142,6 +142,7 @@ footer{margin-top:48px;font-size:13px;color:var(--faint)}
   <div class="eyebrow">cstack · for Claude Code, Codex, and other apps · non-engineer edition</div>
   <h1>cstack Field Guide</h1>
   <p class="lede">You do not write code. You say what you want and how to prove it is done. cstack makes your AI agent work like a careful engineering team: it reproduces, designs, builds, checks, and shows you the evidence.</p>
+  <p class="sub">This guide is the cstack how-to: what to type and what to check. For why each step exists and which source backs it, open the <a href="https://claude.ai/code/artifact/64a6f52c-d273-429b-89ee-fa7a5ec1b464" target="_blank" rel="noopener">Agentic Coding Handbook</a>.</p>
 </header>
 
 <section id="rule">
@@ -158,7 +159,9 @@ footer{margin-top:48px;font-size:13px;color:var(--faint)}
 </section>
 
 <section id="setup">
-  <div class="sec-head"><span class="sec-num">01</span><div><h2>Set up once</h2><p class="sub">Do these steps one time per computer, then one time per project.</p></div></div>
+  <div class="sec-head"><span class="sec-num">01</span><div><h2>Set up once</h2><p class="sub">Part A is one time per computer. Part B is one time per project. If cstack already runs on this computer, a new project needs only Part B.</p></div></div>
+  <h3>Part A. One time per computer</h3>
+  <p>cstack installs for your whole computer, not for one folder. These steps carry over to every project you open later.</p>
   <ol class="steps">
     <li><h3>Install cstack</h3><p>Pick the app you use. You can install cstack in more than one app. They share the same skills.</p>
       <p><strong>Claude Code.</strong> Add the cstack repo as a marketplace. Then install the plugin.</p>
@@ -168,21 +171,31 @@ footer{margin-top:48px;font-size:13px;color:var(--faint)}
       <div class="prompt">codex plugin marketplace add cullanash/c-stack<button class="copy" type="button">Copy</button></div>
       <p><strong>Any other app</strong> (Gemini CLI, OpenCode, a local-model app). Run this in your terminal. Then paste the short block it prints into your app's <code>AGENTS.md</code>.</p>
       <div class="prompt">git clone https://github.com/cullanash/c-stack ~/cstack &amp;&amp; ~/cstack/scripts/install.sh &lt;your app's skills folder&gt;<button class="copy" type="button">Copy</button></div></li>
-    <li><h3>Start a new session</h3><p>cstack loads its rules when a session starts. Close the current session. Open a new one in your project folder.</p>
+    <li><h3>Start a new session</h3><p>cstack loads its rules when a session starts. Close the current session and open a new one.</p>
       <p>In Codex, also type <code>/hooks</code> one time and trust the cstack hook. Codex does not run a plugin's startup step until you trust it.</p></li>
-    <li><h3>Pick your models</h3><p>Run the setup skill. Answer its questions. The "balanced" budget is a good start. Run it once in each app you use.</p>
+    <li><h3>Pick your models</h3><p>Run the setup skill. Answer its questions. The "balanced" budget is a good start. Run it once in each app you use. Your choices are saved for every project.</p>
       <div class="prompt">/setup-cstack<button class="copy" type="button">Copy</button></div>
       <p>cstack gives work to three kinds of model. <strong>Strong</strong> plans, reviews, and writes. <strong>Fast</strong> writes most of the code. <strong>Small</strong> is optional and does simple bulk work. Setup asks which of your models fills each role. A small local model is fine for bulk work, but never as the one that runs the plan.</p></li>
-    <li><h3>Let the agent use a browser</h3><p>For a web app, the agent must click through the real app to prove a change works. Add the Playwright browser tool one time. Run the line for your app in your terminal, not in the chat.</p>
-      <div class="prompt">claude mcp add playwright -- npx @playwright/mcp@latest<button class="copy" type="button">Copy</button></div>
+    <li><h3>Let the agent use a browser</h3><p>For a web app, the agent must click through the real app to prove a change works. Add the Playwright browser tool. Run the line for your app in your terminal, not in the chat.</p>
+      <div class="prompt">claude mcp add --scope user playwright -- npx @playwright/mcp@latest<button class="copy" type="button">Copy</button></div>
       <div class="prompt">codex mcp add playwright -- npx @playwright/mcp@latest<button class="copy" type="button">Copy</button></div>
-      <p>If neither line fits your app, skip this. cstack's <code>control-ui</code> skill can drive a browser with a short script instead.</p></li>
-    <li><h3>Make a verification skill for your project</h3><p>This is the most important step. It teaches Claude how to start your app, use it like a user, and capture proof. Setup offers it at the end. You can also run it yourself.</p>
+      <p>Keep <code>--scope user</code> in the Claude Code line. Without it, the browser tool works only in the folder where you ran the line, and you must add it again in every project.</p>
+      <p>In the Codex desktop app, the built-in browser and Computer Use can do this job too. See the <a href="#codex-eyes">Codex note</a> below. If none of these fit your app, skip this step. cstack's <code>control-ui</code> skill can drive a browser with a short script instead.</p></li>
+  </ol>
+  <h3 style="margin-top:32px">Part B. One time per project</h3>
+  <p>Do these each time you start work in a new codebase.</p>
+  <ol class="steps">
+    <li><h3>Open the project folder</h3><p>Start a new session in the project's folder. cstack is already on.</p>
+      <p>If the folder is new and empty, make it a git repository first. The playbooks save work as commits and open pull requests, and both need git. You can ask the agent to do it.</p>
+      <div class="prompt">set this folder up as a git repository.<button class="copy" type="button">Copy</button></div></li>
+    <li><h3>Make a verification skill for your project</h3><p>This is the most important step. It teaches the agent how to start your app, use it like a user, and capture proof. Setup offers it at the end. You can also run it yourself.</p>
       <div class="prompt">/create-verification-skill<button class="copy" type="button">Copy</button></div>
-      <p>It writes <code>verify-&lt;app&gt;</code> into your project's skills folder (<code>.claude/skills/</code> in Claude Code, <code>.agents/skills/</code> in Codex). It proves itself one time before it hands over. If that proof fails, do not use it. Ask Claude to fix it.</p></li>
-    <li><h3>Keep the verification skill current</h3><p>Your app changes. The skill's feature map gets old. Run this after big changes, or once a week.</p>
+      <p>It writes <code>verify-&lt;app&gt;</code> into your project's skills folder (<code>.claude/skills/</code> in Claude Code, <code>.agents/skills/</code> in Codex). It proves itself one time before it hands over. If that proof fails, do not use it. Ask the agent to fix it.</p>
+      <p>In an empty project there is no app to check yet. Run this as soon as the first version runs.</p></li>
+    <li><h3>Keep the verification skill current</h3><p>Your app changes. The skill's feature map gets old. Run this at least once a day, ideally from a scheduled task so nobody has to remember. Also run it after big changes.</p>
       <div class="prompt">/maintain-verification-skill<button class="copy" type="button">Copy</button></div></li>
   </ol>
+  <div class="note" id="codex-eyes"><strong>Codex: browser and Computer Use.</strong> The Codex desktop app has a built-in browser and an optional Computer Use plugin that lets the agent see the screen, click, and type in other apps. OpenAI's advice: for a web app you build on your computer, use the built-in browser first. Use Computer Use for things only a screen shows, such as a desktop app or a visual bug. To turn it on, open <strong>Plugins &gt; Computer Use</strong> in the app. On a Mac, also allow Screen Recording and Accessibility. Then type <code>@Computer</code> or an app name, such as <code>@Chrome</code>, in your prompt. It cannot drive terminal programs, so cstack's <code>control-cli</code> still covers those. <a href="https://learn.chatgpt.com/docs/computer-use" target="_blank" rel="noopener">OpenAI's Computer Use guide</a>.</div>
 </section>
 
 <section id="builder">
@@ -431,7 +444,7 @@ keep a decision log. don't ask me before committing.
     <dt>model tier</dt><dd>The kind of model a job needs: strong, fast, or small. Setup picks a real model for each one, per app.</dd>
     <dt>local model</dt><dd>An AI model that runs on your own computer instead of a company's servers. Small ones are cheap but lose track of long plans.</dd>
   </dl>
-  <footer>cstack packages pstack by Lauren Tan (poteto), MIT license, for Claude Code, Codex, and other agent apps. Prompts use &lt;placeholders&gt;. Replace each one with your own details.</footer>
+  <footer>cstack packages pstack by Lauren Tan (poteto), MIT license, for Claude Code, Codex, and other agent apps. Prompts use &lt;placeholders&gt;. Replace each one with your own details. The reasons and sources behind these steps are in the <a href="https://claude.ai/code/artifact/64a6f52c-d273-429b-89ee-fa7a5ec1b464" target="_blank" rel="noopener">Agentic Coding Handbook</a>.</footer>
 </section>
 </main>
 </div>

@@ -29,6 +29,9 @@ Adding an app means adding one adapter file.
 
 ## Install
 
+Install once per computer. The plugin, the hook, and `~/.cstack/models.md` apply to every project on that computer.
+A new project needs only the per-project steps at the end of this section.
+
 ### Claude Code
 
 ```
@@ -38,6 +41,7 @@ Adding an app means adding one adapter file.
 
 Start a new session, then run `/setup-cstack` one time.
 To test without install, run `claude --plugin-dir <path-to-cstack>`.
+To give everyone who clones a project the plugin too, install with `claude plugin install cstack@cstack --scope project`. This writes it into that project's `.claude/settings.json`.
 
 ### Codex
 
@@ -56,6 +60,24 @@ git clone https://github.com/cullanash/c-stack ~/cstack
 ```
 
 Add the block the script prints to your app's `AGENTS.md`. Then ask the agent to run `setup-cstack`.
+
+### Browser tool (once per computer, optional)
+
+The playbooks verify web apps in a real browser. Add the Playwright MCP server:
+
+```
+claude mcp add --scope user playwright -- npx @playwright/mcp@latest
+codex mcp add playwright -- npx @playwright/mcp@latest
+```
+
+In Claude Code, `claude mcp add` defaults to the current project only. `--scope user` makes it apply to every project.
+In the Codex desktop app, the built-in browser and the Computer Use plugin also work. See `adapters/codex.md`.
+Without any of these, the `control-ui` skill drives a browser with a short script.
+
+### Each new project
+
+1. Open a new session in the project folder. If the folder is empty, run `git init` first (or ask the agent to). The playbooks commit and open PRs.
+2. Run `/create-verification-skill` (`$create-verification-skill` in Codex) once the app runs. In an empty project, wait until the first version runs.
 
 ## Use it
 
