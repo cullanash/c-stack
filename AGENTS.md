@@ -87,6 +87,13 @@ For such an entry, spawn a `fast` subagent and tell it to run the review through
 Examples: `claude -p "<prompt>"`, `codex exec "<prompt>"`, `gemini -p "<prompt>"`.
 If the tool is not installed, skip the entry and say so in the report.
 
+### Model families
+
+Some skills compare model families. Arena's cross-judge must come from a family other than the parent's.
+A tier counts as the family of the model your adapter maps it to. A cross-vendor entry counts as that vendor (`claude`, `codex` is OpenAI, `gemini` is Google).
+In an app where every tier maps to one vendor, such as Claude Code or Codex, the default pool `strong, fast` has no other family, so arena skips its judge and says so.
+To keep the judge, add a cross-vendor entry to the `arena cross-judge pool` line, such as `strong, fast, codex` in Claude Code or `strong, fast, claude` in Codex.
+
 ## The control skill
 
 pstack's playbooks say "verify on the matching surface via the control skill".
@@ -106,6 +113,19 @@ If your app also has a browser tool (for example a Playwright MCP server), use i
 | Reference | Substitute |
 |---|---|
 | `deslop` | Use the `unslop` skill. |
+
+## Cursor-only features
+
+Some steps need a feature only Cursor has. When a step needs one, put one line in your reply, `Skipped in <app>: <step>. <reason>.`, then go on to the next step. Do not stop, ask, or retry. When a later step needs what the skipped step made, such as a URL or a key, leave a placeholder and name it in the line.
+
+| Cursor feature | Outside Cursor |
+|---|---|
+| Cursor Automations: routines, `update_state` calls, `api2.cursor.sh/automations` webhooks, routine wakes, `SendToUser` secret requests | Skip with the line. |
+| Grok Bot webhooks (`make-bot-ui`) | Skip with the line. |
+| Bugbot | Bugbot comments on a GitHub PR are ordinary review threads. Triage them with the forge command the step gives. Skip a step that starts, waits for, or configures Bugbot when the PR has no Bugbot check or comment. |
+| A built-in PR tool | Use the forge command the step gives, such as `gh pr create`. That is not a skip, so write no line. |
+
+This rule follows upstream's own Claude Code adapter (`pstack/docs/harness/claude-code.md` in cursor/plugins).
 
 ## Not supported
 

@@ -18,7 +18,8 @@ Adding an app means adding one adapter file.
 ## What you get
 
 - `poteto-mode` with 23 playbooks. The agent enters it by itself for non-trivial engineering work.
-- All pstack skills: `how`, `why`, `interrogate`, `arena`, `swarm`, `tdd`, `create-verification-skill`, `correct`, `ketchup`, `in-your-own-words`, `poteto-help`, and others.
+- All pstack skills: `how`, `why`, `interrogate`, `arena`, `swarm`, `tdd`, `create-verification-skill`, `correct`, `ketchup`, `in-your-own-words`, `poteto-help`, `sharpen`, `statechart`, and others.
+- Formal verification: `create-formal-verification-skill` makes a project skill that proves a key property of your code holds in every case, not only the cases tests reach. `maintain-formal-verification-skill` keeps it in step after the code changes.
 - 24 principle skills.
 - `grill-me`, Matt Pocock's interview skill. It questions you in rounds, with a recommended answer for each question, until every decision in your plan is settled. cstack owns this skill, so upstream syncs keep it.
 - pstack's own guide in `docs/guide/`, which `poteto-help` links to.
@@ -110,7 +111,7 @@ The script does these steps:
 
 1. Clones `cursor/plugins` and copies `pstack/skills`, `pstack/agents`, and `pstack/docs/guide`.
 2. Copies `control-cli` and `control-ui` from `cursor-team-kit` in the same clone.
-3. Applies the app-neutral rewrites in `scripts/rewrite.sed`: model file path, setup skill name, and model slugs to tiers.
+3. Applies the app-neutral rewrites in `scripts/rewrite.sed`: model file path, setup skill name, and model slugs to tiers. Then points upstream's "install pstack in Claude Code" lines at cstack's adapters.
 4. Sets each skill `name` to its folder name.
 5. Lets the agent auto-invoke `poteto-mode`. Other skills stay user-invoked.
 6. Copies `overrides/` on top.

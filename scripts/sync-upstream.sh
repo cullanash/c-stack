@@ -68,6 +68,17 @@ find "$root/skills" "$root/agents" "$root/docs/guide" -type f \
 	xargs -0 sed -i.bak -E -f "$root/scripts/rewrite.sed"
 find "$root/skills" "$root/agents" "$root/docs/guide" -name '*.bak' -delete
 
+# 3a. Upstream tells Claude Code users to install official pstack from
+# cursor/plugins and links its own adapter, which cstack does not ship.
+# Point those lines at cstack's adapters instead.
+sed -i.bak -E '/\/plugin install pstack@cursor-plugins/c\
+pstack is built for Cursor. cstack runs the same skills in Claude Code, Codex, and other apps. Each app has an adapter in `adapters/` (see `AGENTS.md`) that maps the Cursor names, and a step that needs a Cursor-only feature, such as Bugbot or Automations, is skipped with a one-line note. The cstack README has the install steps.' \
+	"$root/skills/poteto-help/SKILL.md" "$root/docs/guide/01-setup.md"
+rm -f "$root/skills/poteto-help/SKILL.md.bak" "$root/docs/guide/01-setup.md.bak"
+if grep -rqE 'pstack@cursor-plugins|harness/claude-code\.md' "$root/skills" "$root/agents" "$root/docs/guide"; then
+	echo "warn: upstream Claude Code install text left; check step 3a" >&2
+fi
+
 # 4. Claude Code agent names must be kebab-case.
 sed -i.bak -E '1,5s/^name: Comment Sicko$/name: comment-sicko/' "$root/agents/comment-sicko.md"
 rm -f "$root/agents/comment-sicko.md.bak"
