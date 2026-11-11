@@ -296,10 +296,11 @@ footer{margin-top:48px;font-size:13px;color:var(--faint)}
   <div class="sec-head"><span class="sec-num">04</span><div><h2>Check the reply</h2><p class="sub">You do not review code. You review evidence.</p></div></div>
   <div class="two">
     <div class="col good"><h3>Trust signals</h3><ul>
+      <li>Its first message restates your goal, and the smallest change it expects to meet it.</li>
       <li>The exact commands it ran, and their output.</li>
       <li>Screenshots or page states from the real app.</li>
       <li>Before and after results for a bug.</li>
-      <li>A step marked <code>skip: &lt;reason&gt;</code> instead of a silent skip.</li>
+      <li>A line such as <code>Skipped in Claude Code: &lt;step&gt;. &lt;reason&gt;.</code> instead of a silent skip.</li>
       <li>"Inconclusive" when a check could not run.</li>
       <li>The principles it applied, each with the decision it changed.</li>
     </ul></div>
@@ -386,13 +387,17 @@ keep a decision log. don't ask me before committing.
       <tr><td><code>/recall</code></td><td>You return to a topic after some days.</td><td><code>/recall catch me up on &lt;topic&gt;.</code></td></tr>
       <tr><td><code>/bro</code></td><td>The last reply was too technical.</td><td><code>/bro</code></td></tr>
       <tr><td><code>/ketchup</code></td><td>You were away. You want a short catch-up with small pictures.</td><td><code>/ketchup</code></td></tr>
-      <tr><td><code>/in-your-own-words</code></td><td>You want the agent to repeat your goal back before it starts.</td><td><code>/in-your-own-words</code></td></tr>
+      <tr><td><code>/ketchup-video</code></td><td>The same catch-up, as a short video of slides with subtitles.</td><td><code>/ketchup-video</code></td></tr>
+      <tr><td><code>/in-your-own-words</code></td><td>You want the agent to repeat your goal back before it starts. <code>poteto-mode</code> now does this by itself on its first message.</td><td><code>/in-your-own-words</code></td></tr>
+      <tr><td><code>/sharpen</code></td><td>You want your prompt made deeper before you send it. It hands back a rewritten prompt and does not do the task.</td><td><code>/sharpen &lt;your prompt&gt;</code></td></tr>
       <tr><td><code>/grill-me</code></td><td>You want your plan questioned until every decision is settled.</td><td><code>/grill-me &lt;plan or idea&gt;</code></td></tr>
       <tr><td><code>/architect</code></td><td>You want the design settled before code.</td><td><code>/architect &lt;change&gt;. stop and show me before implementing.</code></td></tr>
       <tr><td><code>/arena</code></td><td>You want several attempts at one decision, then the best parts merged.</td><td><code>/arena &lt;decision&gt;. 3 candidates.</code></td></tr>
       <tr><td><code>/swarm</code></td><td>You want many parallel checks, one report.</td><td><code>/swarm check each &lt;area&gt;. one worker each. one report.</code></td></tr>
-      <tr><td><code>/interrogate</code></td><td>You want other models to try to break a change.</td><td><code>/interrogate this branch. no nitpicks.</code></td></tr>
+      <tr><td><code>/interrogate</code></td><td>You want other models to try to break a change. It keeps only problems it can make happen with a real run.</td><td><code>/interrogate this branch.</code></td></tr>
       <tr><td><code>/blast-radius</code></td><td>A small change could break something else.</td><td><code>/blast-radius this diff.</code></td></tr>
+      <tr><td><code>/statechart</code></td><td>You want a flow (sign-up, checkout, a sync) drawn as a chart of states, with the shortest path to any state that breaks a rule.</td><td><code>/statechart the checkout flow.</code></td></tr>
+      <tr><td><code>/create-formal-verification-skill</code></td><td>Some code is too risky for tests alone (money, retries, things happening at once). It makes a skill that proves a rule holds in every case.</td><td><code>/create-formal-verification-skill</code></td></tr>
       <tr><td><code>/tdd</code></td><td>A bug has a cheap test. Write the failing test first.</td><td><code>/tdd implement</code></td></tr>
       <tr><td><code>/figure-it-out</code></td><td>No playbook fits the task.</td><td><code>/figure-it-out &lt;task&gt;.</code></td></tr>
       <tr><td><code>/show-me-your-work</code></td><td>You want a decision log to review later.</td><td><code>/show-me-your-work keep a log i can review.</code></td></tr>
@@ -416,7 +421,7 @@ keep a decision log. don't ask me before committing.
       <tr><td>Give a vague goal ("make it better").</td><td>Give a check that can pass or fail.</td></tr>
       <tr><td>Accept "it compiles" as done.</td><td>Ask for the real result in the app.</td></tr>
       <tr><td>Run two agents on the same code at once.</td><td>Say "own worktree per task".</td></tr>
-      <tr><td>Accept every review comment.</td><td>Read the Act on and Dismissed lists from <code>/interrogate</code>. Override when you disagree.</td></tr>
+      <tr><td>Act on a review comment nobody has proven.</td><td>Use <code>/interrogate</code>. It keeps only problems a run proves, and shows the command for each. Override when you disagree.</td></tr>
       <tr><td>Keep one chat for many topics.</td><td>Start with "new task", or open a new session.</td></tr>
       <tr><td>Skip the verification skill.</td><td>Make it first. Without it, Claude cannot prove UI changes.</td></tr>
       <tr><td>Edit files in the cstack <code>skills/</code> folder.</td><td>Put changes in <code>overrides/</code>. The sync script replaces <code>skills/</code>.</td></tr>
@@ -440,6 +445,7 @@ keep a decision log. don't ask me before committing.
     <dt>playbook</dt><dd>A fixed list of steps for one kind of task, such as Bug fix or Feature.</dd>
     <dt>principle</dt><dd>A short named rule, such as "prove it works". You can say its name to steer Claude.</dd>
     <dt>verification skill</dt><dd>Project instructions that teach the agent how to start and use your app to prove a change works.</dd>
+    <dt>formal verification</dt><dd>Proving with a tool that a rule (for example "no order is charged twice") holds in every possible case, not only the cases a test tries.</dd>
     <dt>adapter</dt><dd>A short cstack file for one app (Claude Code, Codex, or any other). It tells the agent what pstack's Cursor words mean in that app.</dd>
     <dt>model tier</dt><dd>The kind of model a job needs: strong, fast, or small. Setup picks a real model for each one, per app.</dd>
     <dt>local model</dt><dd>An AI model that runs on your own computer instead of a company's servers. Small ones are cheap but lose track of long plans.</dd>

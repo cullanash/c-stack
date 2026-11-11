@@ -56,6 +56,8 @@ Ask the user to accept, or to change specific roles.
 A role can also name a real model, or `inherit` (the parent session's model).
 Panel roles take a list. One subagent runs per entry, so the list length sets the count.
 A panel entry can also be `claude`, `codex`, or `gemini`. `AGENTS.md` explains how those run.
+Arena's cross-judge runs only on a model family other than the parent's, trying `arena cross-judge pool` entries in order.
+If every tier in this app maps to one vendor, say that arena will skip its judge, and offer to add an installed cross-vendor tool to that line (see "Model families" in `AGENTS.md`).
 
 ### 6. Write the file
 
@@ -114,4 +116,11 @@ Say that they can run setup again in any app. Each app keeps its own tier lines.
 Check if the project has a way to drive the real app for proof (a `verify-*` skill in the project's skills folder, or a test harness).
 If not, offer this one time: "Do you want a project-local verification skill, so agents can drive the app and prove that changes work? I can make one with create-verification-skill."
 If the user says yes, run `create-verification-skill`.
+If the user says no, continue.
+
+### 10. Offer a formal verification skill (optional)
+
+Check if the project already has a formal verification skill (a project skill that runs a model checker, a proof, or another verifier against the code).
+If not, offer this one time: "Do you want a formal verification skill, so agents can prove a key property of your code holds in every case in scope, not only the cases tests reach? I can make one with create-formal-verification-skill."
+If the user says yes, run `create-formal-verification-skill`.
 If the user says no, continue.

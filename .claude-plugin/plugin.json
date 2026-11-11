@@ -1,7 +1,7 @@
 {
   "name": "cstack",
   "displayName": "cstack",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "pstack for Claude Code (and other apps through cstack's adapters). Rigorous agent workflows (poteto-mode, playbooks, principles).",
   "author": {
     "name": "Cullan",
